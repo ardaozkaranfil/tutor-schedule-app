@@ -1,4 +1,4 @@
-package com.tutorschedule.app.tutorscheduleapp;
+package com.tutorschedule.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
