@@ -21,7 +21,7 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 
 ## Tech stack
 
-- Java 17
+- Java 21
 - Spring Boot 3.5.16
 - Spring Data JPA / Hibernate
 - Thymeleaf
