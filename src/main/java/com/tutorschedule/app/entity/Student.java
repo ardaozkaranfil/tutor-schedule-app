@@ -43,11 +43,11 @@ public class Student {
         }
 
         Student student = (Student) o;
-        return Objects.equals(id, student.getId());
+        return id != null && id.equals(student.getId());
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }

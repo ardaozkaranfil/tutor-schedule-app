@@ -41,11 +41,11 @@ public class Teacher {
         }
 
         Teacher teacher = (Teacher) o;
-        return Objects.equals(id, teacher.getId());
+        return id != null && id.equals(teacher.getId());
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }

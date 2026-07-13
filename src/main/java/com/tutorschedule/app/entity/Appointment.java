@@ -62,11 +62,11 @@ public class Appointment {
         }
 
         Appointment appointment = (Appointment) o;
-        return Objects.equals(id, appointment.getId());
+        return id != null && id.equals(appointment.getId());
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }
