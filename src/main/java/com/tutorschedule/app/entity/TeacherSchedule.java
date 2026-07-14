@@ -31,8 +31,7 @@ public class TeacherSchedule {
     public TeacherSchedule(){
 
     }
-    public TeacherSchedule(Long id, Long teacherId, Long timeSlotId, String className, DayOfWeek dayOfWeek, TeacherScheduleStatus status){
-        this.id = id;
+    public TeacherSchedule(Long teacherId, Long timeSlotId, String className, DayOfWeek dayOfWeek, TeacherScheduleStatus status){
         this.teacherId = teacherId;
         this.timeSlotId =timeSlotId;
         this.className = className;
