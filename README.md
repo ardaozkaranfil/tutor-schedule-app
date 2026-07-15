@@ -39,6 +39,10 @@ Six entities: `Teacher`, `Student`, `ClassGroup`, `TimeSlot`, `TeacherSchedule`,
 
 No installation, no commands. Double-click `run.bat` on the desktop. It starts MySQL if it isn't already running, launches the app, and opens it in the browser automatically at `http://localhost:8080`.
 
+## Design
+
+Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-stage mockup, not a screenshot of the working app. Real screenshots will replace this once the frontend is done.
+
 ## Running it — for development
 
 1. Clone the repo.
