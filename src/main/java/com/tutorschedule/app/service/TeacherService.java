@@ -82,8 +82,9 @@ public class TeacherService {
 
         List<TeacherSchedule> toSave = new ArrayList<>(provided.values());
         for (DayOfWeek day : SCHOOL_DAYS) {
-            TimeSlotDayType dayType = (day == DayOfWeek.SATURDAY) ? TimeSlotDayType.WEEKEND : TimeSlotDayType.WEEKDAY;
-            for (TimeSlot slot : timeSlotRepository.findByDayTypeOrderByStartTimeAsc(dayType)) {
+            TimeSlotDayType dayType = (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY)
+                    ? TimeSlotDayType.WEEKEND
+                    : TimeSlotDayType.WEEKDAY;            for (TimeSlot slot : timeSlotRepository.findByDayTypeOrderByStartTimeAsc(dayType)) {
                 String key = scheduleKey(day, slot.getId());
                 if (!provided.containsKey(key)) {
                     toSave.add(new TeacherSchedule(saved.getId(), slot.getId(), null, day, TeacherScheduleStatus.FREE));
