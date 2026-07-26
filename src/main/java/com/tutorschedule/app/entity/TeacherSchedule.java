@@ -4,6 +4,14 @@ import jakarta.persistence.*;
 
 import java.time.DayOfWeek;
 
+/**
+ * Represents a single cell in a teacher's weekly timetable: the
+ * FREE/BUSY/BLOCKED state for one day + time slot combination. Every
+ * teacher has a row for every defined time slot, so adding a new teacher
+ * or a new time slot triggers filling in the missing combinations
+ * (see TeacherService.createTeacher, TimeSlotService.addTimeSlot).
+ * className only means anything when status is BUSY.
+ */
 @Entity
 @Table(name = "TEACHER_SCHEDULE")
 public class TeacherSchedule {

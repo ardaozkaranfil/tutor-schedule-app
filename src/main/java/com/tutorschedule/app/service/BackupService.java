@@ -13,6 +13,14 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Backs up the database via mysqldump and can restore from a backup file
+ * when needed. Backups run @Async so they don't hold up the caller (e.g.
+ * saving a schedule). Files are written to the backups/ folder, named with
+ * a timestamp plus the trigger label (see BackupTrigger) — there's no
+ * separate Backup entity or table, listings are read straight off the
+ * filesystem.
+ */
 @Service
 public class BackupService {
 
@@ -29,6 +37,12 @@ public class BackupService {
     @Value("${app.backup.db-name}")
     private String dbName;
 
+    /**
+     * Runs mysqldump and writes the output as a .sql file into backups/.
+     * If mysqldump exits with a non-zero code, the half-written file is
+     * deleted and the failure is logged; no exception is thrown here since
+     * this method runs asynchronously and the caller has no way to catch it.
+     */
     @Async
     public void performBackup(BackupTrigger trigger) {
         try {
@@ -59,6 +73,12 @@ public class BackupService {
         }
     }
 
+    /**
+     * Restores the database from the given .sql backup file via the mysql
+     * command. If the file doesn't exist or mysql exits with an error code,
+     * the operation is aborted with an exception — this one is deliberately
+     * synchronous, we don't want the app carrying on in a half-restored state.
+     */
     public void restore(File backupFile) {
         if (!backupFile.exists()) {
             throw new IllegalArgumentException("Backup file not found: " + backupFile.getName());

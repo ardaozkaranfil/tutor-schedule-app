@@ -17,6 +17,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bulk-imports students from an Excel file. Rows are processed
+ * independently — one bad row doesn't stop the rest from being imported,
+ * failures are collected and reported back in the summary message.
+ */
 @Service
 public class ExcelImportService {
 
@@ -30,6 +35,12 @@ public class ExcelImportService {
         this.backupService = backupService;
     }
 
+    /**
+     * Reads the uploaded Excel file row by row and saves each as a student.
+     * The first row is treated as a header and skipped. Returns a summary
+     * message stating how many students were added, including how many rows
+     * failed and why. A backup is taken automatically once the import finishes.
+     */
     public String importFromExcel(MultipartFile file){
         int successCount = 0;
         List<String> errors = new ArrayList<>();
@@ -70,6 +81,14 @@ public class ExcelImportService {
         return successCount + " students imported, " + errors.size() + " row(s) failed: " + String.join("; ", errors);
     }
 
+    /**
+     * Converts a single Excel row into a Student entity. The three columns
+     * are read as name, school number, and class, in that order. Returns
+     * null if the row is entirely empty (meaning it should be skipped).
+     * Throws NumberFormatException if the school number isn't a valid number.
+     * If the row's class name isn't already registered, a ClassGroup is
+     * created for it here on the spot.
+     */
     public Student mapRowToStudent(Row row){
         String name = getCellValueAsString(row.getCell(0));
         String studentNo = getCellValueAsString(row.getCell(1));
@@ -94,6 +113,11 @@ public class ExcelImportService {
         return studentService.createStudent(id, studentClass, name);
     }
 
+    /**
+     * Safely converts an Excel cell to a String regardless of its underlying
+     * type (text, number, boolean, formula). Whole numbers are written
+     * without a decimal point (e.g. "1023", not "1023.0").
+     */
     public String getCellValueAsString(Cell cell){
         if (cell == null) {
             return "";

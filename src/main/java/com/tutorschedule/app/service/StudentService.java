@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Handles CRUD and search operations on student records.
+ */
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
@@ -15,15 +18,26 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
+    /**
+     * Returns every student in the system.
+     */
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
 
+    /**
+     * Fetches the student with the given number; throws
+     * IllegalArgumentException if none exists.
+     */
     public Student getStudentById(Long id){
         return studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found: " + id));
     }
 
+    /**
+     * Searches by name, case-insensitively. Returns every student if name
+     * is null or blank.
+     */
     public List<Student> searchStudents(String name){
         boolean hasName = name != null && !name.isEmpty();
 
@@ -34,6 +48,11 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
+    /**
+     * Saves a new student. Since id doubles as the school number and isn't
+     * auto-generated, an already-registered number throws
+     * IllegalArgumentException.
+     */
     @Transactional
     public Student createStudent(Long id, String className, String fullName){
         if (studentRepository.existsById(id)) {
@@ -46,6 +65,10 @@ public class StudentService {
         return studentRepository.save(student);
     }
 
+    /**
+     * Updates an existing student's details. Throws via getStudentById if
+     * the record doesn't exist.
+     */
     @Transactional
     public Student updateStudent(Long id, String className, String fullName){
         Student existing = getStudentById(id);
@@ -55,6 +78,9 @@ public class StudentService {
         return studentRepository.save(existing);
     }
 
+    /**
+     * Permanently deletes the student.
+     */
     @Transactional
     public void deleteStudent(Long id){
         studentRepository.deleteById(id);

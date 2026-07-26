@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
+/**
+ * Represents a teacher. branch isn't required — it can be left null for
+ * teachers who haven't been assigned one yet.
+ */
 @Entity
 @Table(name = "TEACHER")
 public class Teacher {

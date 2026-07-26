@@ -5,6 +5,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Represents a single appointment a student booked with a teacher for a
+ * given date and time slot. Cancelling an appointment doesn't delete the
+ * row, it just flips status to CANCELLED, so the history isn't lost.
+ */
 @Entity
 @Table(name = "APPOINTMENT")
 public class Appointment {
@@ -31,6 +36,11 @@ public class Appointment {
     public Appointment(){
 
     }
+
+    /**
+     * Creates a new appointment. id is left unset since JPA assigns it via
+     * identity generation.
+     */
     public Appointment(Long teacherId, Long timeSlotId, Long studentId, LocalDate appointmentDate, AppointmentStatus status){
         this.teacherId = teacherId;
         this.timeSlotId = timeSlotId;

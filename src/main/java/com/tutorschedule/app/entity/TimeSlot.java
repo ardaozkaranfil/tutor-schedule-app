@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 
 import java.time.LocalTime;
 
+/**
+ * Represents a time range used in the schedule (e.g. 14:00-14:40).
+ * dayType lets the same hours be defined differently for weekdays and
+ * weekends — the two are kept as separate slot lists.
+ */
 @Entity
 @Table(name = "TIME_SLOT")
 public class TimeSlot {

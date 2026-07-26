@@ -4,6 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Represents a class at school (like 9-A, 10-B). Uses the class name
+ * itself as the primary key instead of a separate id, since class names
+ * are already unique and don't change.
+ */
 @Entity
 @Table(name = "CLASS_GROUP")
 public class ClassGroup {

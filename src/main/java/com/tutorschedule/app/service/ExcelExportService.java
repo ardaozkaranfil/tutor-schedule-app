@@ -25,6 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Produces a color-coded Excel (.xlsx) file of a teacher's weekly
+ * schedule. FREE is green, BUSY is orange (with the class name shown),
+ * BLOCKED is grey.
+ */
 @Service
 public class ExcelExportService {
 
@@ -57,6 +62,13 @@ public class ExcelExportService {
         this.timeSlotRepository = timeSlotRepository;
     }
 
+    /**
+     * Builds the teacher's weekly schedule into a single-sheet Excel file —
+     * rows are time slots, columns are Monday through Sunday — and returns
+     * it as a byte array. Throws IllegalArgumentException if the teacher
+     * doesn't exist. Weekday and weekend slot counts can differ, so the
+     * shorter side gets its leftover cells filled with "-".
+     */
     public byte[] exportTeacherSchedule(Long teacherId) {
         teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
@@ -144,10 +156,16 @@ public class ExcelExportService {
         }
     }
 
+    /**
+     * Formats a time slot as "14:00-14:40".
+     */
     private String formatTimeRange(TimeSlot slot) {
         return slot.getStartTime().format(TIME_FORMATTER) + "-" + slot.getEndTime().format(TIME_FORMATTER);
     }
 
+    /**
+     * Builds a bold cell style used for the day headers.
+     */
     private CellStyle createHeaderStyle(Workbook workbook) {
         Font boldFont = workbook.createFont();
         boldFont.setBold(true);
@@ -156,6 +174,10 @@ public class ExcelExportService {
         return style;
     }
 
+    /**
+     * Builds a solid-fill cell style in the given color; used to visually
+     * tell FREE/BUSY/BLOCKED apart.
+     */
     private CellStyle createColoredStyle(Workbook workbook, IndexedColors color) {
         CellStyle style = workbook.createCellStyle();
         style.setFillForegroundColor(color.getIndex());

@@ -18,6 +18,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Works out which of a teacher's slots are actually free on a given
+ * date. The result is a combination of the fixed weekly template in
+ * TeacherSchedule and that day's active appointments: a slot marked FREE
+ * in the template counts as effectively BUSY if it's already been booked
+ * for that date.
+ */
 @Service
 public class ScheduleAvailabilityService {
 
@@ -33,6 +40,11 @@ public class ScheduleAvailabilityService {
         this.appointmentRepository = appointmentRepository;
     }
 
+    /**
+     * Returns every slot for the given date along with its computed effective
+     * status (template state plus any booking on top of it). Slots with no
+     * matching template entry are treated as BLOCKED.
+     */
     public Map<TimeSlot, TeacherScheduleStatus> getTeacherDayAvailability(Teacher teacher, LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         TimeSlotDayType dayType = (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY)
@@ -64,6 +76,12 @@ public class ScheduleAvailabilityService {
         return result;
     }
 
+    /**
+     * Checks whether one specific slot can be booked for the given teacher
+     * and date. Returns false if the template state isn't FREE, or if that
+     * slot is already booked with an active appointment. AppointmentService
+     * checks in here before creating a new appointment.
+     */
     public boolean isSlotAvailable(Long teacherId, Long timeSlotId, LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
 

@@ -16,9 +16,18 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages time slot definitions (weekday/weekend hour ranges). Adding a
+ * new slot opens up a FREE schedule row for every teacher, for every day
+ * that matches the slot's day type.
+ */
 @Service
 public class TimeSlotService {
 
+    /**
+     * The seven days walked over when a new slot triggers a teacher-schedule
+     * update.
+     */
     private static final List<DayOfWeek> SCHOOL_DAYS = List.of(
             DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
             DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY,
@@ -37,14 +46,27 @@ public class TimeSlotService {
         this.teacherScheduleRepository = teacherScheduleRepository;
     }
 
+    /**
+     * Returns weekday time slots ordered by start time.
+     */
     public List<TimeSlot> getWeekdayTimeSlots() {
         return timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY);
     }
 
+    /**
+     * Returns weekend time slots ordered by start time.
+     */
     public List<TimeSlot> getWeekendTimeSlots() {
         return timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND);
     }
 
+    /**
+     * Defines a new time slot. End time must be after start time, otherwise
+     * IllegalArgumentException is thrown. The new slot is also rejected if it
+     * overlaps an existing slot of the same day type. Once saved, a FREE
+     * schedule row is opened for every teacher, for every day matching the
+     * slot's day type.
+     */
     @Transactional
     public TimeSlot addTimeSlot(TimeSlotDayType dayType, LocalTime startTime, LocalTime endTime) {
         if (!endTime.isAfter(startTime)) {

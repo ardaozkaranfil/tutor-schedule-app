@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
-
+/**
+ * Represents a student. id isn't auto-generated — the school number is
+ * used directly as the id (see ExcelImportService, where the number
+ * column from the spreadsheet maps straight into this field).
+ */
 @Entity
 @Table(name = "STUDENT")
 public class Student {
@@ -20,6 +24,10 @@ public class Student {
     public Student(){
 
     }
+
+    /**
+     * Builds a student from a given school number, class, and name.
+     */
     public Student(Long id, String className, String fullName){
         this.setId(id);
         this.setClassName(className);

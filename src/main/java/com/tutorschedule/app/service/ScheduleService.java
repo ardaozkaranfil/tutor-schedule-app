@@ -18,6 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Handles reading and updating a teacher's fixed weekly schedule template
+ * (TeacherSchedule). The state kept here is independent of actual
+ * bookings — this answers "is this slot normally free," while
+ * ScheduleAvailabilityService answers "is this slot taken on this date."
+ */
 @Service
 public class ScheduleService {
 
@@ -36,6 +42,10 @@ public class ScheduleService {
         this.backupService = backupService;
     }
 
+    /**
+     * Returns all of a teacher's weekly schedule rows grouped by day, sorted
+     * within each day by the slot's start time.
+     */
     public Map<DayOfWeek, List<TeacherSchedule>> getWeeklySchedule(Long teacherId) {
         List<TeacherSchedule> entries = teacherScheduleRepository.findByTeacherId(teacherId);
 
@@ -52,6 +62,15 @@ public class ScheduleService {
         return byDay;
     }
 
+    /**
+     * Updates a teacher's template state for a given day and slot. Setting
+     * status to BUSY requires a class name, and that class must already
+     * exist as a ClassGroup — otherwise IllegalArgumentException is thrown.
+     * For any other status the class name is cleared. Also throws if no
+     * matching entry exists (i.e. the teacher/day/slot combination falls
+     * outside the template). Every successful update triggers an automatic
+     * backup.
+     */
     @Transactional
     public TeacherSchedule updateScheduleEntry(Long teacherId, DayOfWeek dayOfWeek, Long timeSlotId,
                                                TeacherScheduleStatus status, String className) {

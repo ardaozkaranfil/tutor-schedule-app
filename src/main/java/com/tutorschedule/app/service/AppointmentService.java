@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Handles creating, listing, and cancelling appointments. Doesn't decide
+ * on its own whether a slot is actually free — that call is delegated to
+ * ScheduleAvailabilityService.
+ */
 @Service
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
@@ -28,11 +33,20 @@ public class AppointmentService {
         this.scheduleAvailabilityService = scheduleAvailabilityService;
     }
 
+    /**
+     * Lists active appointments from today onward (past ones excluded),
+     * ordered by date.
+     */
     public List<Appointment> getAppointments(){
         return appointmentRepository.findByStatusAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAsc(AppointmentStatus.ACTIVE,
                 LocalDate.now());
     }
 
+    /**
+     * Books a new appointment. Checks that the teacher and student exist and
+     * that the slot is actually available on that date; throws
+     * IllegalArgumentException if any of those checks fail.
+     */
     @Transactional
     public Appointment createAppointment(Long teacherId, Long timeSlotId, Long studentId, LocalDate appointmentDate){
         if (teacherRepository.findById(teacherId).isEmpty()) {
@@ -53,6 +67,10 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    /**
+     * Doesn't delete the appointment, just flips its status to CANCELLED.
+     * That frees the slot up again while keeping the appointment's record intact.
+     */
     @Transactional
     public void cancelAppointment(Long id){
         Appointment appointment = appointmentRepository.findById(id)
