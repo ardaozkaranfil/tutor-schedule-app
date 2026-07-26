@@ -1,10 +1,6 @@
 package com.tutorschedule.app.service;
 
-import com.tutorschedule.app.entity.Teacher;
-import com.tutorschedule.app.entity.TeacherSchedule;
-import com.tutorschedule.app.entity.TeacherScheduleStatus;
-import com.tutorschedule.app.entity.TimeSlot;
-import com.tutorschedule.app.entity.TimeSlotDayType;
+import com.tutorschedule.app.entity.*;
 import com.tutorschedule.app.repository.TeacherRepository;
 import com.tutorschedule.app.repository.TeacherScheduleRepository;
 import com.tutorschedule.app.repository.TimeSlotRepository;
@@ -26,16 +22,19 @@ public class TeacherService {
             DayOfWeek.SUNDAY
     );
 
+    private final BackupService backupService;
     private final TeacherRepository teacherRepository;
     private final TeacherScheduleRepository teacherScheduleRepository;
     private final TimeSlotRepository timeSlotRepository;
 
     public TeacherService(TeacherRepository teacherRepository,
                           TeacherScheduleRepository teacherScheduleRepository,
-                          TimeSlotRepository timeSlotRepository) {
+                          TimeSlotRepository timeSlotRepository,
+                          BackupService backupService) {
         this.teacherRepository = teacherRepository;
         this.teacherScheduleRepository = teacherScheduleRepository;
         this.timeSlotRepository = timeSlotRepository;
+        this.backupService = backupService;
     }
 
     public List<Teacher> getAllTeachers() {
@@ -94,6 +93,7 @@ public class TeacherService {
         }
 
         teacherScheduleRepository.saveAll(toSave);
+        backupService.performBackup(BackupTrigger.SCHEDULE_SAVE);
         return saved;
     }
 

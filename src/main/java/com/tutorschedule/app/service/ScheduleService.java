@@ -1,5 +1,6 @@
 package com.tutorschedule.app.service;
 
+import com.tutorschedule.app.entity.BackupTrigger;
 import com.tutorschedule.app.entity.TeacherSchedule;
 import com.tutorschedule.app.entity.TeacherScheduleStatus;
 import com.tutorschedule.app.entity.TimeSlot;
@@ -23,13 +24,16 @@ public class ScheduleService {
     private final TeacherScheduleRepository teacherScheduleRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final ClassGroupRepository classGroupRepository;
+    private final BackupService backupService;
 
     public ScheduleService(TeacherScheduleRepository teacherScheduleRepository,
                            TimeSlotRepository timeSlotRepository,
-                           ClassGroupRepository classGroupRepository) {
+                           ClassGroupRepository classGroupRepository,
+                           BackupService backupService) {
         this.teacherScheduleRepository = teacherScheduleRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.classGroupRepository = classGroupRepository;
+        this.backupService = backupService;
     }
 
     public Map<DayOfWeek, List<TeacherSchedule>> getWeeklySchedule(Long teacherId) {
@@ -70,6 +74,8 @@ public class ScheduleService {
         }
 
         entry.setStatus(status);
-        return teacherScheduleRepository.save(entry);
+        TeacherSchedule saved = teacherScheduleRepository.save(entry);
+        backupService.performBackup(BackupTrigger.SCHEDULE_SAVE);
+        return saved;
     }
 }
