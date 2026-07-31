@@ -22,4 +22,9 @@ public interface TeacherScheduleRepository extends JpaRepository<TeacherSchedule
      * Returns a teacher's schedule rows for one specific day of the week.
      */
     List<TeacherSchedule> findByTeacherIdAndDayOfWeek(Long teacherId, DayOfWeek dayOfWeek);
+
+    /**
+     * Returns all schedule rows tied to a specific time slot.
+     */
+    List<TeacherSchedule> findByTimeSlotId(Long timeSlotId);
 }

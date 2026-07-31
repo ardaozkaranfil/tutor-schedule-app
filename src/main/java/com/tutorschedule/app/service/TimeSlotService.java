@@ -101,4 +101,55 @@ public class TimeSlotService {
 
         return saved;
     }
+
+    /**
+     * Fetches the time slot with the given id; throws IllegalArgumentException
+     * if none exists.
+     */
+    public TimeSlot getTimeSlotById(Long id) {
+        return timeSlotRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Time slot not found: " + id));
+    }
+
+    /**
+     * Updates an existing time slot's start/end time. dayType is not
+     * editable here — a slot can't jump between the weekday and weekend
+     * lists once created. Same validation as addTimeSlot: end time must be
+     * after start time, and the new range must not overlap any other slot
+     * of the same day type.
+     */
+    @Transactional
+    public TimeSlot updateTimeSlot(Long id, LocalTime startTime, LocalTime endTime) {
+        TimeSlot existing = getTimeSlotById(id);
+
+        if (!endTime.isAfter(startTime)) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+
+        List<TimeSlot> siblings = timeSlotRepository.findByDayTypeOrderByStartTimeAsc(existing.getDayType());
+        for (TimeSlot slot : siblings) {
+            if (slot.getId().equals(id)) {
+                continue;
+            }
+            boolean overlaps = startTime.isBefore(slot.getEndTime()) && slot.getStartTime().isBefore(endTime);
+            if (overlaps) {
+                throw new IllegalArgumentException("Time slot overlaps with an existing one: "
+                        + slot.getStartTime() + " - " + slot.getEndTime());
+            }
+        }
+
+        existing.setStartTime(startTime);
+        existing.setEndTime(endTime);
+        return timeSlotRepository.save(existing);
+    }
+
+    /**
+     * Deletes a time slot along with every teacher-schedule row that
+     * referenced it (one per teacher per day matching its day type).
+     */
+    @Transactional
+    public void deleteTimeSlot(Long id) {
+        teacherScheduleRepository.deleteAll(teacherScheduleRepository.findByTimeSlotId(id));
+        timeSlotRepository.deleteById(id);
+    }
 }
