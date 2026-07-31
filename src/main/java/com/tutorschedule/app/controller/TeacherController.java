@@ -54,6 +54,21 @@ public class TeacherController {
     }
 
     /**
+     * Live-search endpoint for the "Öğretmenler" filter bar. Returns the
+     * same filtered result as {@link #listTeachers}, but as JSON instead of
+     * a rendered page — called via fetch() from the search box on each
+     * keystroke so the list can update without a full page reload.
+     */
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Teacher> searchTeachers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String branch) {
+
+        return teacherService.searchTeachers(name, branch);
+    }
+
+    /**
      * Deletes a teacher along with their weekly schedule rows.
      */
     @PostMapping("/delete/{id}")
