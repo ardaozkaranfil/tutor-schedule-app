@@ -1,0 +1,121 @@
+package com.tutorschedule.app.controller;
+
+import com.tutorschedule.app.entity.Teacher;
+import com.tutorschedule.app.entity.TeacherScheduleStatus;
+import com.tutorschedule.app.entity.TimeSlotDayType;
+import com.tutorschedule.app.repository.TimeSlotRepository;
+import com.tutorschedule.app.service.ExcelExportService;
+import com.tutorschedule.app.service.ScheduleService;
+import com.tutorschedule.app.service.TeacherService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.DayOfWeek;
+import java.util.List;
+
+/**
+ * Handles the "Ders programı" screen: showing a teacher's weekly schedule
+ * grid, updating individual cells (free/busy/blocked), and exporting the
+ * schedule to Excel. Reading/writing the template itself is delegated to
+ * {@link ScheduleService} so the documented business rules (backup on
+ * save, class-must-exist check) are always applied.
+ */
+@Controller
+@RequestMapping("/schedule")
+public class ScheduleController {
+
+    private final ScheduleService scheduleService;
+    private final TeacherService teacherService;
+    private final ExcelExportService excelExportService;
+    private final TimeSlotRepository timeSlotRepository;
+
+    public ScheduleController(ScheduleService scheduleService,
+                              TeacherService teacherService,
+                              ExcelExportService excelExportService,
+                              TimeSlotRepository timeSlotRepository) {
+        this.scheduleService = scheduleService;
+        this.teacherService = teacherService;
+        this.excelExportService = excelExportService;
+        this.timeSlotRepository = timeSlotRepository;
+    }
+
+    /**
+     * Shows the weekly schedule grid for the selected teacher (or the
+     * first teacher in the system if none was selected yet).
+     */
+    @GetMapping
+    public String showSchedule(@RequestParam(required = false) Long teacherId, Model model) {
+        List<Teacher> teachers = teacherService.getAllTeachers();
+        model.addAttribute("teachers", teachers);
+
+        Teacher selectedTeacher = resolveSelectedTeacher(teacherId, teachers);
+        model.addAttribute("selectedTeacher", selectedTeacher);
+
+        if (selectedTeacher != null) {
+            model.addAttribute("weeklySchedule", scheduleService.getWeeklySchedule(selectedTeacher.getId()));
+        }
+
+        model.addAttribute("weekdaySlots", timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY));
+        model.addAttribute("weekendSlots", timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND));
+        model.addAttribute("weekdayDays", List.of(
+                DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+        model.addAttribute("weekendDays", List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
+
+        return "schedule/grid";
+    }
+
+    /**
+     * Updates a single grid cell for the selected teacher. Validation
+     * errors (missing/unknown class name) come back from the service and
+     * are shown as a flash error instead of a raw exception.
+     */
+    @PostMapping("/update")
+    public String updateCell(
+            @RequestParam Long teacherId,
+            @RequestParam DayOfWeek dayOfWeek,
+            @RequestParam Long timeSlotId,
+            @RequestParam TeacherScheduleStatus status,
+            @RequestParam(required = false) String className,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            scheduleService.updateScheduleEntry(teacherId, dayOfWeek, timeSlotId, status, className);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/schedule?teacherId=" + teacherId;
+    }
+
+    /**
+     * Downloads the selected teacher's weekly schedule as an .xlsx file.
+     */
+    @GetMapping("/export/{teacherId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> exportSchedule(@PathVariable Long teacherId) {
+        byte[] excelBytes = excelExportService.exportTeacherSchedule(teacherId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=schedule-" + teacherId + ".xlsx")
+                .body(excelBytes);
+    }
+
+    /**
+     * Picks the teacher whose schedule should be shown: the requested one
+     * if given and valid, otherwise the first teacher in the list, or null
+     * if there are no teachers at all yet.
+     */
+    private Teacher resolveSelectedTeacher(Long teacherId, List<Teacher> teachers) {
+        if (teacherId != null) {
+            return teacherService.getTeacherById(teacherId);
+        }
+        return teachers.isEmpty() ? null : teachers.get(0);
+    }
+}
