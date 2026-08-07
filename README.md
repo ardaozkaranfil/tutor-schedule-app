@@ -1,5 +1,7 @@
 # Tutor Schedule App
 
+[![CI](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml/badge.svg)](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml)
+
 A scheduling and appointment system built for a cram school. It replaces a paper weekly schedule with a local web app used by the guidance counselor to manage teacher availability and book one-on-one student sessions.
 
 ## Status
@@ -63,7 +65,16 @@ To produce the packaged version used by `run.bat`:
 ```
 This generates a runnable `.jar` under `target/`, which `run.bat` calls with `java -jar`.
 
+## Testing
+
+Unit and integration tests run against an in-memory H2 database (configured in `src/test/resources/application.properties`), so no local MySQL connection is needed to run them:
+
+```./mvnw test```
+
+Every push and pull request to `main` also runs this via GitHub Actions (see `.github/workflows/ci.yml`).
+
 ## Notes
 
 - `application.properties` is gitignored — it holds real database credentials and should never be committed. Use `application.properties.example` as a template.
 - No user data (student names, course numbers) is committed to this repo. The app is tested with placeholder data.
+- CI runs on GitHub Actions against Java 21; see the badge above or the Actions tab for build status.
