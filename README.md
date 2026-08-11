@@ -29,7 +29,7 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 - Thymeleaf
 - MySQL
 - Apache POI (Excel import/export)
-- JUnit 5 / Mockito (unit tests), H2 (in-memory test database)
+- JUnit 5 / Mockito (unit tests), H2 (in-memory test database), JaCoCo (coverage)
 - Docker (containerized setup, planned)
 
 ## Data model
@@ -82,6 +82,8 @@ Tests run against an in-memory H2 database (configured in `src/test/resources/ap
 ```
 
 Every push and pull request to `main` also runs this via GitHub Actions (see `.github/workflows/ci.yml`).
+
+Test coverage is measured with JaCoCo. Running `./mvnw test` also generates an HTML report at `target/site/jacoco/index.html` (not committed — regenerate it locally). Current coverage on the service layer, where the unit tests are focused, is ~88% instructions / ~83% branches.
 
 ## Notes
 
