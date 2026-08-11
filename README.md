@@ -29,6 +29,7 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 - Thymeleaf
 - MySQL
 - Apache POI (Excel import/export)
+- JUnit 5 / Mockito (unit tests), H2 (in-memory test database)
 - Docker (containerized setup, planned)
 
 ## Data model
@@ -67,9 +68,18 @@ This generates a runnable `.jar` under `target/`, which `run.bat` calls with `ja
 
 ## Testing
 
-Unit and integration tests run against an in-memory H2 database (configured in `src/test/resources/application.properties`), so no local MySQL connection is needed to run them:
+The service layer has unit test coverage using JUnit 5 and Mockito — repositories and collaborating services are mocked, so these tests exercise business logic in isolation (validation rules, schedule/availability calculations, Excel import/export mapping, etc.) without touching a real database:
 
-```./mvnw test```
+- `StudentService`, `TeacherService`, `TimeSlotService`, `ScheduleService`
+- `ScheduleAvailabilityService`, `AppointmentService`
+- `ExcelImportService`, `ExcelExportService` (using real in-memory Apache POI workbooks, not mocked)
+- `BackupService` (covers the `restore()` guard clause only — the actual `mysqldump`/`mysql` process execution isn't unit-testable as currently structured)
+
+Tests run against an in-memory H2 database (configured in `src/test/resources/application.properties`), so no local MySQL connection is needed:
+
+```
+./mvnw test
+```
 
 Every push and pull request to `main` also runs this via GitHub Actions (see `.github/workflows/ci.yml`).
 
