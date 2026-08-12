@@ -37,11 +37,14 @@ public class StudentController {
 
     /**
      * Lists students, optionally filtered by name, for the "Öğrenciler" page.
+     * Also feeds the class dropdown used by the inline "Öğrenci ekle" box,
+     * since there's no separate add page for students (unlike teachers).
      */
     @GetMapping
     public String listStudents(@RequestParam(required = false) String name, Model model){
         model.addAttribute("students", studentService.searchStudents(name));
-        return "student-list";
+        model.addAttribute("classGroups", classGroupRepository.findAll());
+        return "student/list";
     }
 
     /**
@@ -54,17 +57,6 @@ public class StudentController {
     @ResponseBody
     public List<Student> searchStudent(@RequestParam(required = false) String name){
         return studentService.searchStudents(name);
-    }
-
-    /**
-     * Shows the add-student form together with the list of existing class
-     * names, so className can be picked from a dropdown instead of typed freely.
-     */
-    @GetMapping("/add")
-    public String showAddForm(Model model){
-        model.addAttribute("student", new Student());
-        model.addAttribute("classGroups", classGroupRepository.findAll());
-        return "add-student";
     }
 
     /**
@@ -86,7 +78,7 @@ public class StudentController {
         }
         catch (IllegalArgumentException e){
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/students/add";
+            return "redirect:/students";
         }
 
         return "redirect:/students";
@@ -128,7 +120,7 @@ public class StudentController {
     public String showEditForm(@PathVariable Long id, Model model){
         model.addAttribute("student", studentService.getStudentById(id));
         model.addAttribute("classGroups", classGroupRepository.findAll());
-        return "add-student";
+        return "student/form";
     }
 
     /**
@@ -143,5 +135,16 @@ public class StudentController {
 
         studentService.updateStudent(id, className, fullName);
         return "redirect:/students";
+    }
+
+    /**
+     * Live lookup for the "Düzenle" link — returns a single student as JSON
+     * so the inline "Öğrenci ekle" box can be pre-filled by JS without a
+     * page reload, instead of navigating to a separate edit page.
+     */
+    @GetMapping("/{id}")
+    @ResponseBody
+    public Student getStudent(@PathVariable Long id){
+        return studentService.getStudentById(id);
     }
 }
