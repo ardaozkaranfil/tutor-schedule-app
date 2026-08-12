@@ -50,7 +50,7 @@ public class TeacherController {
         model.addAttribute("teachers", teacherService.searchTeachers(name, branch));
         model.addAttribute("branches", teacherService.getDistinctBranches());
         model.addAttribute("selectedBranch", branch);
-        return "teacher-list";
+        return "teacher/list";
     }
 
     /**
@@ -87,7 +87,7 @@ public class TeacherController {
         model.addAttribute("teacher", new Teacher());
         model.addAttribute("branches", teacherService.getDistinctBranches());
         addWeeklyGridAttributes(model);
-        return "add-teacher";
+        return "teacher/form";
     }
 
     /**
@@ -99,7 +99,7 @@ public class TeacherController {
     public String showEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("teacher", teacherService.getTeacherById(id));
         model.addAttribute("branches", teacherService.getDistinctBranches());
-        return "add-teacher";
+        return "teacher/form";
     }
 
     /**
