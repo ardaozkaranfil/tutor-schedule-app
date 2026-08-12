@@ -1,0 +1,298 @@
+{
+  "info": {
+    "_postman_id": "859b4a6a-b92b-4032-bf8b-75baf1134c43",
+    "name": "Tutor Schedule App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57350514"
+  },
+  "item": [
+    {
+      "name": "Search Students",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/students/search",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "search"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Search Students",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "search"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 12 Aug 2026 20:25:39 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n    {\n        \"id\": 22,\n        \"className\": \"12-MF\",\n        \"fullName\": \"Tuna Ozkaranfil\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Get Student by Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/students/22",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "22"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Get Student by Id",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/22",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "22"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 12 Aug 2026 20:18:14 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"id\": 22,\n    \"className\": \"12-MF\",\n    \"fullName\": \"Tuna Ozkaranfil\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Search Teachers",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/teachers/search",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "teachers",
+            "search"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Search Teachers",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teachers/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teachers",
+                "search"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 12 Aug 2026 20:22:24 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n    {\n        \"id\": 1,\n        \"fullName\": \"Arda Ozkaranfil\",\n        \"branch\": null\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Export Schedule",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/schedule/export/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "schedule",
+            "export",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Export Schedule",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedule/export/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedule",
+                "export",
+                "1"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Content-Disposition",
+              "value": "attachment; filename=schedule-1.xlsx"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            },
+            {
+              "key": "Content-Length",
+              "value": "3626"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 12 Aug 2026 20:21:14 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "cookie": [],
+          "body": null
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}

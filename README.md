@@ -30,6 +30,7 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 - MySQL
 - Apache POI (Excel import/export)
 - JUnit 5 / Mockito (unit tests), H2 (in-memory test database), JaCoCo (coverage)
+- Postman (manual API testing/collection)
 - Docker (containerized setup, planned)
 
 ## Data model
@@ -84,6 +85,17 @@ Tests run against an in-memory H2 database (configured in `src/test/resources/ap
 Every push and pull request to `main` also runs this via GitHub Actions (see `.github/workflows/ci.yml`).
 
 Test coverage is measured with JaCoCo. Running `./mvnw test` also generates an HTML report at `target/site/jacoco/index.html` (not committed — regenerate it locally). Current coverage on the service layer, where the unit tests are focused, is ~88% instructions / ~83% branches.
+
+### API testing with Postman
+
+A Postman collection covering the app's JSON/file-download endpoints (student/teacher search, single-student lookup, Excel schedule export) is at `postman/tutor-schedule-app.postman_collection.json`.
+
+To use it:
+1. Import the collection into Postman.
+2. The `baseUrl` collection variable is preset to `http://localhost:8080` — update it if the app runs on a different port.
+3. Start the app (see "Running it — for development" above), then send any request in the collection.
+
+Note: the frontend (Thymeleaf templates) is still a work in progress, so most of the app's create/edit flows are currently only exercised through this collection (or directly against the endpoints) rather than through a rendered form.
 
 ## Notes
 
