@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'teachers')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Öğretmenler</h1>
+        <a class="btn btn-primary" th:href="@{/teachers/add}">+ Yeni Öğretmen</a>
+    </div>
+
+    <div class="filter-bar">
+        <input type="text" id="nameFilter" placeholder="İsme göre ara...">
+
+        <select id="branchFilter">
+            <option value="">Tüm Branşlar</option>
+            <option th:each="b : ${branches}"
+                    th:value="${b}"
+                    th:text="${b}"
+                    th:selected="${b == selectedBranch}"></option>
+        </select>
+    </div>
+
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Ad Soyad</th>
+            <th>Branş</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody id="teacherTableBody">
+        <tr th:each="teacher : ${teachers}" th:attr="data-id=${teacher.id}">
+            <td th:text="${teacher.fullName}"></td>
+            <td th:text="${teacher.branch} ?: '-'"></td>
+            <td class="actions">
+                <a th:href="@{/teachers/edit/{id}(id=${teacher.id})}">Düzenle</a>
+                <form th:action="@{/teachers/delete/{id}(id=${teacher.id})}" method="post"
+                      onsubmit="return confirm('Bu öğretmeni silmek istediğinize emin misiniz?');">
+                    <button type="submit" class="link-danger">Sil</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<script th:src="@{/js/teacher.js}"></script>
+</body>
+</html>
