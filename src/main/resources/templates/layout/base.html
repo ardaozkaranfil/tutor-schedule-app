@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html th:fragment="layout(content, activePage)"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurs Randevu Paneli</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <aside th:fragment="sidebar">
+        <div class="sidebar-title">
+            <strong>Kurs Randevu Paneli</strong>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a th:href="@{/appointments}"
+                   th:classappend="${activePage == 'appointments'} ? 'active'">Randevular</a>
+            </li>
+            <li>
+                <a th:href="@{/schedule}"
+                   th:classappend="${activePage == 'schedule'} ? 'active'">Ders Programları</a>
+            </li>
+            <li>
+                <a th:href="@{/teachers}"
+                   th:classappend="${activePage == 'teachers'} ? 'active'">Öğretmenler</a>
+            </li>
+            <li>
+                <a th:href="@{/students}"
+                   th:classappend="${activePage == 'students'} ? 'active'">Öğrenciler</a>
+            </li>
+            <li>
+                <a th:href="@{/timeslots}"
+                   th:classappend="${activePage == 'timeslots'} ? 'active'">Zaman Ayarları</a>
+            </li>
+            <li>
+                <a th:href="@{/backups}"
+                   th:classappend="${activePage == 'backups'} ? 'active'">Yedekleme</a>
+            </li>
+        </ul>
+    </aside>
+    <div th:replace="${content}"></div>
+</body>
+</html>
