@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let debounceTimer;
 
+    /**
+     * Calls GET /teachers/search?name=&branch= and renders the result via renderTeachers.
+     * @returns {Teacher[]} each shaped as {id, fullName, branch}
+     */
     function fetchTeachers() {
         const name = nameFilter.value.trim();
         const branch = branchFilter.value;
@@ -19,6 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(err => console.error('Öğretmen araması başarısız:', err));
     }
 
+    /**
+     * @param {{id: number, fullName: string, branch: string|null}[]} teachers
+     */
     function renderTeachers(teachers) {
         tableBody.innerHTML = '';
 
