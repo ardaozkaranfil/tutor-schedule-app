@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'teachers')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${teacher.id == null} ? 'Öğretmen Ekle' : 'Öğretmen Düzenle'">Öğretmen Formu</title>
+</head>
+<body>
+<section>
+    <div class="page-header">
+        <h1 th:text="${teacher.id == null} ? 'Öğretmen Ekle' : 'Öğretmen Düzenle'"></h1>
+    </div>
+
+    <form th:object="${teacher}"
+          th:action="@{${teacher.id == null ? '/teachers/add' : '/teachers/edit/' + teacher.id}}"
+          method="post">
+
+        <div class="form-row">
+            <label>
+                Ad Soyad
+                <input type="text" th:field="*{fullName}" required>
+            </label>
+
+            <label>
+                Branş
+                <input type="text" th:field="*{branch}" list="branchList" placeholder="Branş seçin veya yazın">
+                <datalist id="branchList">
+                    <option th:each="b : ${branches}" th:value="${b}"></option>
+                </datalist>
+            </label>
+        </div>
+
+        <div th:if="${weekdaySlots != null}">
+            <h2>Hafta İçi Programı</h2>
+            <table class="data-table schedule-grid">
+                <thead>
+                <tr>
+                    <th>Saat</th>
+                    <th th:each="day : ${weekdayDays}" th:text="${day}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="slot : ${weekdaySlots}">
+                    <td th:text="${slot.startTime} + ' - ' + ${slot.endTime}"></td>
+                    <td th:each="day : ${weekdayDays}" class="schedule-cell">
+                        <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+                        <input type="hidden" name="dayOfWeek" th:value="${day}">
+                        <select name="status">
+                            <option value="FREE" selected>Boş</option>
+                            <option value="BUSY">Meşgul</option>
+                            <option value="BLOCKED">Bloklu</option>
+                        </select>
+                        <input type="text" name="className" placeholder="Sınıf" readonly>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h2>Hafta Sonu Programı</h2>
+            <table class="data-table schedule-grid">
+                <thead>
+                <tr>
+                    <th>Saat</th>
+                    <th th:each="day : ${weekendDays}" th:text="${day}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="slot : ${weekendSlots}">
+                    <td th:text="${slot.startTime} + ' - ' + ${slot.endTime}"></td>
+                    <td th:each="day : ${weekendDays}" class="schedule-cell">
+                        <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+                        <input type="hidden" name="dayOfWeek" th:value="${day}">
+                        <select name="status">
+                            <option value="FREE" selected>Boş</option>
+                            <option value="BUSY">Meşgul</option>
+                            <option value="BLOCKED">Bloklu</option>
+                        </select>
+                        <input type="text" name="className" placeholder="Sınıf" readonly>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <a th:href="@{/teachers}" class="btn">İptal</a>
+        </div>
+    </form>
+</section>
+
+<script th:src="@{/js/teacher-form.js}"></script>
+</body>
+</html>
