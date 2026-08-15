@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'students')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Öğrenciler</h1>
+    </div>
+
+    <div class="filter-bar">
+        <input type ="text" id="nameFilter" placeholder="İsme göre ara...">
+    </div>
+
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Kurs No</th>
+            <th>Ad Soyad</th>
+            <th>Sınıf</th>
+            <th>İşlemler</th>
+        </tr>
+        </thead>
+        <tbody id="studentTableBody">
+        <tr th:each="student : ${students}" th:attr="data-id=${student.id}">
+            <td th:text="${student.id}"></td>
+            <td th:text="${student.fullName}"></td>
+            <td th:text="${student.className}"></td>
+            <td class="actions">
+                <a href="#" class="edit-link" th:attr="data-id=${student.id}">Düzenle</a>
+                <form th:action="@{/students/delete/{id}(id=${student.id})}" method="post"
+                      onsubmit="return confirm('Bu öğrenciyi silmek istediğinize emin misiniz?');">
+                    <button type="submit" class="link-danger">Sil</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <aside class="side-form">
+        <h2 id="formTitle">Öğrenci Ekle</h2>
+        <form id="studentForm" th:action="@{/students/add}" method="post">
+            <label>Kurs No
+                <input type="number" name="id" id="studentId" required>
+            </label>
+            <label>Ad Soyad
+                <input type="text" name="fullName" id="studentFullName" required>
+            </label>
+            <label>Sınıf
+                <select name="className" id="studentClassName" required>
+                    <option th:each="cg : ${classGroups}" th:value="${cg.name}" th:text="${cg.name}"></option>
+                </select>
+            </label>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <button type="button" id="cancelEditBtn" style="display:none">İptal</button>
+        </form>
+    </aside>
+
+    <form th:action="@{/students/import}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx, .xls" required>
+        <button type="submit" class="btn">İçe Aktar</button>
+    </form>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+    <p th:if="${importSummary}" th:text="${importSummary}"></p>
+</section>
+
+<script th:src="@{/js/student.js}"></script>
+</body>
+</html>
