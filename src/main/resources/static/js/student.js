@@ -1,3 +1,7 @@
+/**
+ * Sets up live search, row rendering, and inline add/edit form
+ * transitions for the student list page.
+ */
 document.addEventListener('DOMContentLoaded', function (){
     const nameFilter = document.getElementById('nameFilter');
     const tableBody = document.getElementById('studentTableBody');
@@ -9,6 +13,10 @@ document.addEventListener('DOMContentLoaded', function (){
     const cancelBtn = document.getElementById('cancelEditBtn');
     let debounceTimer;
 
+    /**
+     * Calls the /students/search endpoint with the current name filter
+     * and re-renders the table with the returned results.
+     */
     function fetchStudents() {
         const name = nameFilter.value.trim();
         const params = new URLSearchParams();
@@ -19,6 +27,11 @@ document.addEventListener('DOMContentLoaded', function (){
             .catch(err => console.error('Öğrenci araması başarısız:', err));
     }
 
+    /**
+     * Converts an array of students into table rows; each row gets
+     * an edit link and a delete form with a confirmation prompt.
+     * @param {Array<{id: number, fullName: string, className: string}>} students
+     */
     function renderStudents(students) {
         tableBody.innerHTML = '';
 
@@ -52,6 +65,13 @@ document.addEventListener('DOMContentLoaded', function (){
             tableBody.appendChild(row);
         });
     }
+
+    /**
+     * Fetches the student with the given id and switches the form into
+     * edit mode (id field becomes readonly, form action points to the
+     * edit endpoint).
+     * @param {number|string} id
+     */
     function enterEditMode(id) {
         fetch('/students/' + id)
             .then(r => r.json())
@@ -68,6 +88,10 @@ document.addEventListener('DOMContentLoaded', function (){
             .catch(err => console.error('Öğrenci getirilemedi:', err));
     }
 
+    /**
+     * Resets the form back to add mode
+     * (resets action, title, and hides the cancel button).
+     */
     function exitEditMode() {
         form.reset();
         idInput.readOnly = false;
