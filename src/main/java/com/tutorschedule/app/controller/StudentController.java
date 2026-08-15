@@ -113,17 +113,6 @@ public class StudentController {
     }
 
     /**
-     * Shows the edit form for an existing student, along with the list of
-     * existing class names for the className dropdown.
-     */
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model){
-        model.addAttribute("student", studentService.getStudentById(id));
-        model.addAttribute("classGroups", classGroupRepository.findAll());
-        return "student/form";
-    }
-
-    /**
      * Updates a student's class and full name. The school number (id) itself
      * isn't editable here since it's the natural key.
      */
