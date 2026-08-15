@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'timeslots')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Zaman Ayarları</h1>
+    </div>
+
+    <div class="timeslot-columns">
+        <div class="weekdaytimeslot-column">
+            <h2>Haftaiçi Saatleri</h2>
+            <div class="timeslot-row" th:each="slot : ${weekdaySlots}" th:attr="data-id=${slot.id}">
+                <span class="slot-display"
+                    th:text="${#temporals.format(slot.startTime,'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime,'HH:mm')}">
+                </span>
+
+                <form class="slot-edit-form" th:action="@{/timeslots/edit/{id}(id=${slot.id})}" method="post" style="display:none">
+                    <input type="time" name="startTime" th:value="${#temporals.format(slot.startTime,'HH:mm')}" required>
+                    <input type="time" name="endTime" th:value="${#temporals.format(slot.endTime,'HH:mm')}" required>
+                    <button type="submit">Kaydet</button>
+                </form>
+
+                <form th:action="@{/timeslots/delete/{id}(id=${slot.id})}" method="post"
+                      onsubmit="return confirm('Bu saati silmek istediğinize emin misiniz?');">
+                    <button type="submit" class="link-danger">×</button>
+                </form>
+            </div>
+
+            <form th:action="@{/timeslots/add}" method="post">
+                <input type="hidden" name="dayType" value="WEEKDAY">
+                <input type="time" name="startTime" required>
+                <input type="time" name="endTime" required>
+                <button type="submit" class="btn btn-primary">+ Yeni saat ekle</button>
+            </form>
+        </div>
+
+        <div class="weekendtimeslot-column">
+            <h2>Haftasonu Saatleri</h2>
+            <div class="timeslot-row" th:each="slot : ${weekendSlots}" th:attr="data-id=${slot.id}">
+                <span class="slot-display"
+                      th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}">
+                </span>
+
+                <form class="slot-edit-form" th:action="@{/timeslots/edit/{id}(id=${slot.id})}" method="post" style="display:none">
+                    <input type="time" name="startTime" th:value="${#temporals.format(slot.startTime, 'HH:mm')}" required>
+                    <input type="time" name="endTime" th:value="${#temporals.format(slot.endTime, 'HH:mm')}" required>
+                    <button type="submit">Kaydet</button>
+                </form>
+
+                <form th:action="@{/timeslots/delete/{id}(id=${slot.id})}" method="post"
+                      onsubmit="return confirm('Bu saati silmek istediğinize emin misiniz?');">
+                    <button type="submit" class="link-danger">×</button>
+                </form>
+            </div>
+
+            <form th:action="@{/timeslots/add}" method="post">
+                <input type="hidden" name="dayType" value="WEEKEND">
+                <input type="time" name="startTime" required>
+                <input type="time" name="endTime" required>
+                <button type="submit" class="btn btn-primary">+ Yeni saat Ekle</button>
+            </form>
+        </div>
+    </div>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+
+    <script th:src="@{/js/timeslot.js}"></script>
+</section>
+</body>
+</html>
