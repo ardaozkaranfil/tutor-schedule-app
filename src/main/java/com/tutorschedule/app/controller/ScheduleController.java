@@ -1,6 +1,7 @@
 package com.tutorschedule.app.controller;
 
 import com.tutorschedule.app.entity.Teacher;
+import com.tutorschedule.app.entity.TeacherSchedule;
 import com.tutorschedule.app.entity.TeacherScheduleStatus;
 import com.tutorschedule.app.entity.TimeSlotDayType;
 import com.tutorschedule.app.repository.TimeSlotRepository;
@@ -16,7 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.DayOfWeek;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the "Ders programı" screen: showing a teacher's weekly schedule
@@ -57,7 +61,9 @@ public class ScheduleController {
         model.addAttribute("selectedTeacher", selectedTeacher);
 
         if (selectedTeacher != null) {
-            model.addAttribute("weeklySchedule", scheduleService.getWeeklySchedule(selectedTeacher.getId()));
+            Map<DayOfWeek, List<TeacherSchedule>> weeklySchedule =
+                    scheduleService.getWeeklySchedule(selectedTeacher.getId());
+            model.addAttribute("scheduleGrid", buildScheduleGrid(weeklySchedule));
         }
 
         model.addAttribute("weekdaySlots", timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY));
@@ -117,5 +123,23 @@ public class ScheduleController {
             return teacherService.getTeacherById(teacherId);
         }
         return teachers.isEmpty() ? null : teachers.get(0);
+    }
+
+    /**
+     * Reshapes the day-grouped weekly schedule into timeSlotId -> (day -> entry),
+     * so the grid template can look up a single cell with
+     * scheduleGrid.get(slot.id)?.get(day) instead of filtering a list per cell.
+     */
+    private Map<Long, Map<DayOfWeek, TeacherSchedule>> buildScheduleGrid(
+            Map<DayOfWeek, List<TeacherSchedule>> weeklySchedule) {
+        Map<Long, Map<DayOfWeek, TeacherSchedule>> grid = new HashMap<>();
+        for (Map.Entry<DayOfWeek, List<TeacherSchedule>> dayEntry : weeklySchedule.entrySet()) {
+            DayOfWeek day = dayEntry.getKey();
+            for (TeacherSchedule entry : dayEntry.getValue()) {
+                grid.computeIfAbsent(entry.getTimeSlotId(), id -> new EnumMap<>(DayOfWeek.class))
+                        .put(day, entry);
+            }
+        }
+        return grid;
     }
 }
