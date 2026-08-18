@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'schedule')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Ders Programları</h1>
+    </div>
+
+    <div class="select-bar">
+        <select id="teacherSelect">
+            <option th:each="t : ${teachers}"
+                    th:value="${t.id}"
+                    th:text="${t.fullName}"
+                    th:selected="${t.id == selectedTeacher?.id}">
+            </option>
+        </select>
+    </div>
+
+    <div class="weekly-schedule">
+        <h2>Hafta İçi Programı</h2>
+        <table class="data-table schedule-grid">
+            <thead>
+            <tr>
+                <th>Saat</th>
+                <th th:each="day : ${weekdayDays}" th:text="${day}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot : ${weekdaySlots}">
+                <td th:text="${#temporals.format(slot.startTime,'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime,'HH:mm')}"></td>
+
+                <td th:each="day : ${weekdayDays}"
+                    class="schedule-cell"
+                    th:with="cell=${scheduleGrid}?.get(slot.id)?.get(day)"
+                    th:classappend="${cell != null} ? ${'status-' + cell.status}">
+
+                    <span class="cell-display"
+                        th:text="${cell != null and cell.status.name() == 'BUSY'} ? ${cell.className} : (${cell?.status})">
+                    </span>
+
+                    <form class="cell-edit-form" method="post" th:action="@{/schedule/update}" style="display:none">
+                        <input type="hidden" name="teacherId" th:value="${selectedTeacher.id}">
+                        <input type="hidden" name="dayOfWeek" th:value="${day}">
+                        <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+
+                        <select name="status">
+                            <option value="FREE" th:selected="${cell?.status?.name() == 'FREE'}">Boş</option>
+                            <option value="BUSY" th:selected="${cell?.status?.name() == 'BUSY'}">Meşgul</option>
+                            <option value="BLOCKED" th:selected="${cell?.status?.name() == 'BLOCKED'}">Bloklu</option>
+                        </select>
+
+                        <input type="text" name="className" placeholder="Sınıf"
+                               th:value="${cell?.className}">
+
+                        <button type="submit">Kaydet</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="weekly-schedule">
+        <h2>Hafta Sonu Programı</h2>
+        <table class="data-table schedule-grid">
+            <thead>
+            <tr>
+                <th>Saat</th>
+                <th th:each="day : ${weekendDays}" th:text="${day}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot : ${weekendSlots}">
+                <td th:text="${#temporals.format(slot.startTime,'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime,'HH:mm')}"></td>
+
+                <td th:each="day : ${weekendDays}"
+                    class="schedule-cell"
+                    th:with="cell=${scheduleGrid}?.get(slot.id)?.get(day)"
+                    th:classappend="${cell != null} ? ${'status-' + cell.status}">
+
+                    <span class="cell-display"
+                          th:text="${cell != null and cell.status.name() == 'BUSY'} ? ${cell.className} : (${cell?.status})">
+                    </span>
+
+                    <form class="cell-edit-form" method="post" th:action="@{/schedule/update}" style="display:none">
+                    <input type="hidden" name="teacherId" th:value="${selectedTeacher.id}">
+                    <input type="hidden" name="dayOfWeek" th:value="${day}">
+                    <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+
+                    <select name="status">
+                        <option value="FREE" th:selected="${cell?.status?.name() == 'FREE'}">Boş</option>
+                        <option value="BUSY" th:selected="${cell?.status?.name() == 'BUSY'}">Meşgul</option>
+                        <option value="BLOCKED" th:selected="${cell?.status?.name() == 'BLOCKED'}">Bloklu</option>
+                    </select>
+
+                    <input type="text" name="className" placeholder="Sınıf"
+                           th:value="${cell?.className}">
+
+                    <button type="submit">Kaydet</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:if="${selectedTeacher != null}"
+       th:href="@{/schedule/export/{id}(id=${selectedTeacher.id})}"
+       class="btn btn-primary">
+        Excel'e Aktar
+    </a>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+
+    <script th:src="@{/js/schedule.js}"></script>
+</section>
+</body>
+</html>
