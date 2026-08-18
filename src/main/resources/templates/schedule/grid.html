@@ -34,7 +34,7 @@
 
                 <td th:each="day : ${weekdayDays}"
                     class="schedule-cell"
-                    th:with="cell=${scheduleGrid}?.get(slot.id)?.get(day)"
+                    th:with="cell=${scheduleGrid?.get(slot.id)?.get(day)}"
                     th:classappend="${cell != null} ? ${'status-' + cell.status}">
 
                     <span class="cell-display"
@@ -78,7 +78,7 @@
 
                 <td th:each="day : ${weekendDays}"
                     class="schedule-cell"
-                    th:with="cell=${scheduleGrid}?.get(slot.id)?.get(day)"
+                    th:with="cell=${scheduleGrid?.get(slot.id)?.get(day)}"
                     th:classappend="${cell != null} ? ${'status-' + cell.status}">
 
                     <span class="cell-display"
