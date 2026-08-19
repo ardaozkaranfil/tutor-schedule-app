@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles the "Randevular" screen: showing a single teacher's day
- * availability or a whole branch's comparison grid, booking a new 1:1
- * appointment on a free slot, and cancelling an existing one. Availability
- * itself is never computed here — that's delegated to
+ * Handles the "Randevular" screen: showing a teacher-by-slot availability
+ * grid (narrowed to one row when a specific teacher is selected), booking a
+ * new 1:1 appointment on a free slot, and cancelling an existing one.
+ * Availability itself is never computed here — that's delegated to
  * {@link ScheduleAvailabilityService} so both this screen and the
  * "Ders programı" screen stay in sync.
  */
@@ -54,11 +54,10 @@ public class AppointmentController {
     }
 
     /**
-     * Shows the "Randevular" screen. If a specific teacher is selected,
-     * renders that teacher's single-day grid (calendar.html); if only a
-     * branch is selected (teacherId left as "hepsi"), renders the
-     * branch-wide comparison grid (compare.html) built by calling
-     * ScheduleAvailabilityService once per teacher in that branch.
+     * Shows the "Randevular" screen. teachers always feeds the branch's
+     * dropdown options; branchAvailability feeds the grid rows — either
+     * every teacher in the selected branch, or just the one selected
+     * teacher, so the same template renders both cases.
      */
     @GetMapping
     public String showAppointments(
@@ -69,26 +68,16 @@ public class AppointmentController {
 
         LocalDate selectedDate = (date != null) ? date : LocalDate.now();
 
-        model.addAttribute("selectedDate", selectedDate);
-        model.addAttribute("branches", teacherService.getDistinctBranches());
-        model.addAttribute("selectedBranch", branch);
-        model.addAttribute("selectedTeacherId", teacherId);
-        model.addAttribute("upcomingAppointments", buildUpcomingAppointmentRows());
-
-        if (teacherId != null) {
-            Teacher teacher = teacherService.getTeacherById(teacherId);
-            model.addAttribute("teacher", teacher);
-            model.addAttribute("dayAvailability", scheduleAvailabilityService.getTeacherDayAvailability(teacher, selectedDate));
-            model.addAttribute("teachers", teacherService.getAllTeachers());
-            return "appointment/calendar";
-        }
-
         List<Teacher> branchTeachers = (branch != null && !branch.isEmpty())
                 ? teacherService.searchTeachers(null, branch)
                 : teacherService.getAllTeachers();
 
+        List<Teacher> rowTeachers = (teacherId != null)
+                ? List.of(teacherService.getTeacherById(teacherId))
+                : branchTeachers;
+
         Map<Teacher, Map<TimeSlot, TeacherScheduleStatus>> branchAvailability = new LinkedHashMap<>();
-        for (Teacher teacher : branchTeachers) {
+        for (Teacher teacher : rowTeachers) {
             branchAvailability.put(teacher, scheduleAvailabilityService.getTeacherDayAvailability(teacher, selectedDate));
         }
 
@@ -97,10 +86,15 @@ public class AppointmentController {
                 ? TimeSlotDayType.WEEKEND
                 : TimeSlotDayType.WEEKDAY;
 
+        model.addAttribute("selectedDate", selectedDate);
+        model.addAttribute("branches", teacherService.getDistinctBranches());
+        model.addAttribute("selectedBranch", branch);
+        model.addAttribute("selectedTeacherId", teacherId);
         model.addAttribute("teachers", branchTeachers);
         model.addAttribute("daySlots", timeSlotRepository.findByDayTypeOrderByStartTimeAsc(dayType));
         model.addAttribute("branchAvailability", branchAvailability);
-        return "appointment/compare";
+        model.addAttribute("upcomingAppointments", buildUpcomingAppointmentRows());
+        return "appointment/list";
     }
 
     /**
