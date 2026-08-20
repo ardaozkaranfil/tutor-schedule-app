@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'appointments')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Randevular</h1>
+    </div>
+
+    <div class="filter-bar">
+        <input type="date" id="dateFilter" th:value="${selectedDate}">
+
+        <select id="branchFilter">
+            <option value="">Branş: hepsi</option>
+            <option th:each="b : ${branches}"
+                    th:value="${b}"
+                    th:text="${b}"
+                    th:selected="${b == selectedBranch}"></option>
+        </select>
+
+        <select id="teacherFilter">
+            <option value="">Öğretmenler: hepsi</option>
+            <option th:each="t : ${teachers}"
+                    th:value="${t.id}"
+                    th:text="${t.fullName}"
+                    th:selected="${t.id == selectedTeacherId}"></option>
+        </select>
+    </div>
+
+    <div class="appointment-grid">
+        <table class="data-table schedule-grid">
+            <thead>
+            <tr>
+                <th>Öğretmen</th>
+                <th th:each="slot : ${daySlots}"
+                    th:text="${#temporals.format(slot.startTime, 'HH:mm')}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${branchAvailability}">
+                <td th:text="${entry.key.fullName}"></td>
+                <td th:each="slot : ${daySlots}"
+                    class="schedule-cell"
+                    th:with="status=${entry.value.get(slot)}"
+                    th:classappend="${'status-' + status}">
+
+                    <span class="cell-display"
+                      th:text="${status.name() == 'FREE'} ? 'Boş' : (${status.name() == 'BUSY'} ? 'Dolu' : 'Bloklu')">
+                    </span>
+
+                    <form th:if="${status.name() == 'FREE' }" class="cell-booking-form"
+                          method="post" th:action="@{/appointments/book}" style="display:none">
+                        <input type="hidden" name="teacherId" th:value="${entry.key.id}">
+                        <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+                        <input type="hidden" name="appointmentDate" th:value="${selectedDate}">
+                        <input type="hidden" name="branch" th:value="${selectedBranch}">
+                        <input type="text" class="student-search" placeholder="Öğrenci ara..." autocomplete="off">
+                        <input type="hidden" name="studentId">
+                        <div class="student-suggestions"></div>
+                        <button type="submit">Kaydet</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="upcoming-section">
+        <h2>Yaklaşan Randevular</h2>
+
+        <table class="data-table upcoming-appointments">
+            <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Öğretmen</th>
+                <th>Öğrenci</th>
+                <th>İşlem</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appointment : ${upcomingAppointments}">
+                <td th:text="${appointment.date()}"></td>
+                <td th:text="${appointment.teacherName()}"></td>
+                <td th:text="${appointment.studentName()}"></td>
+                <td class="action">
+                    <form th:action="@{/appointments/cancel/{id}(id=${appointment.id})}" method="post"
+                        onsubmit="return confirm('Bu randevuyu silmek istediğinize emin misiniz?');">
+                        <button type="submit" class="link-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+
+    <script th:src="@{/js/appointment.js}"></script>
+</section>
+</body>
+</html>
