@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/base :: layout(~{::section}, 'backups')}"
+      lang="tr"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8">
+<body>
+<section>
+    <div class="page-header">
+        <h1>Yedekleme</h1>
+    </div>
+
+    <p th:if="${successMessage}" th:text="${successMessage}" class="success"></p>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+
+    <p th:if="${backups.isEmpty()}">Henüz yedek alınmamış.</p>
+
+    <table class="data-table" th:unless="${backups.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Tetikleyici</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="b : ${backups}">
+            <td th:text="${#temporals.format(b.date, 'dd.MM.yyyy')}"></td>
+            <td th:text="${#temporals.format(b.time, 'HH:mm')}"></td>
+            <td th:text="${b.triggerLabel}"></td>
+            <td class="actions">
+                <form th:action="@{/backups/restore/{fileName}(fileName=${b.fileName})}" method="post"
+                      onsubmit="return confirm('Bu yedeği geri yüklemek istediğinize emin misiniz? Mevcut veriler üzerine yazılacak.');">
+                    <button type="submit" class="link-danger">Geri Yükle</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
