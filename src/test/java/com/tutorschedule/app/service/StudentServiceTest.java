@@ -38,7 +38,7 @@ public class StudentServiceTest {
                 () -> studentService.createStudent(conflictingStudent.getId(), conflictingStudent.getClassName(), conflictingStudent.getFullName())
         );
 
-        assertEquals("This number already exists: 1", exception.getMessage());
+        assertEquals("Bu numara zaten kayıtlı: 1", exception.getMessage());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class StudentServiceTest {
                 () -> studentService.getStudentById(notExistingStudent.getId())
         );
 
-        assertEquals("Student not found: 1", exception.getMessage());
+        assertEquals("Öğrenci bulunamadı: 1", exception.getMessage());
     }
 
     @Test

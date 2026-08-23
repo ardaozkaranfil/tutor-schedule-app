@@ -70,14 +70,14 @@ public class TimeSlotService {
     @Transactional
     public TimeSlot addTimeSlot(TimeSlotDayType dayType, LocalTime startTime, LocalTime endTime) {
         if (!endTime.isAfter(startTime)) {
-            throw new IllegalArgumentException("End time must be after start time");
+            throw new IllegalArgumentException("Bitiş saati başlangıç saatinden sonra olmalı");
         }
 
         List<TimeSlot> existing = timeSlotRepository.findByDayTypeOrderByStartTimeAsc(dayType);
         for (TimeSlot slot : existing) {
             boolean overlaps = startTime.isBefore(slot.getEndTime()) && slot.getStartTime().isBefore(endTime);
             if (overlaps) {
-                throw new IllegalArgumentException("Time slot overlaps with an existing one: "
+                throw new IllegalArgumentException("Bu saat mevcut bir saatle çakışıyor: "
                         + slot.getStartTime() + " - " + slot.getEndTime());
             }
         }
@@ -108,7 +108,7 @@ public class TimeSlotService {
      */
     public TimeSlot getTimeSlotById(Long id) {
         return timeSlotRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Time slot not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Zaman aralığı bulunamadı: " + id));
     }
 
     /**
@@ -123,7 +123,7 @@ public class TimeSlotService {
         TimeSlot existing = getTimeSlotById(id);
 
         if (!endTime.isAfter(startTime)) {
-            throw new IllegalArgumentException("End time must be after start time");
+            throw new IllegalArgumentException("Bitiş saati başlangıç saatinden sonra olmalı");
         }
 
         List<TimeSlot> siblings = timeSlotRepository.findByDayTypeOrderByStartTimeAsc(existing.getDayType());
@@ -133,7 +133,7 @@ public class TimeSlotService {
             }
             boolean overlaps = startTime.isBefore(slot.getEndTime()) && slot.getStartTime().isBefore(endTime);
             if (overlaps) {
-                throw new IllegalArgumentException("Time slot overlaps with an existing one: "
+                throw new IllegalArgumentException("Bu saat mevcut bir saatle çakışıyor: "
                         + slot.getStartTime() + " - " + slot.getEndTime());
             }
         }

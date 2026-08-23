@@ -41,13 +41,13 @@ public class ExcelExportService {
     };
 
     private static final Map<DayOfWeek, String> DAY_NAMES = Map.of(
-            DayOfWeek.MONDAY, "Monday",
-            DayOfWeek.TUESDAY, "Tuesday",
-            DayOfWeek.WEDNESDAY, "Wednesday",
-            DayOfWeek.THURSDAY, "Thursday",
-            DayOfWeek.FRIDAY, "Friday",
-            DayOfWeek.SATURDAY, "Saturday",
-            DayOfWeek.SUNDAY, "Sunday"
+            DayOfWeek.MONDAY, "Pazartesi",
+            DayOfWeek.TUESDAY, "Salı",
+            DayOfWeek.WEDNESDAY, "Çarşamba",
+            DayOfWeek.THURSDAY, "Perşembe",
+            DayOfWeek.FRIDAY, "Cuma",
+            DayOfWeek.SATURDAY, "Cumartesi",
+            DayOfWeek.SUNDAY, "Pazar"
     );
 
     private final TeacherRepository teacherRepository;
@@ -71,7 +71,7 @@ public class ExcelExportService {
      */
     public byte[] exportTeacherSchedule(Long teacherId) {
         teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
+                .orElseThrow(() -> new IllegalArgumentException("Öğretmen bulunamadı: " + teacherId));
 
         Map<DayOfWeek, List<TeacherSchedule>> weeklySchedule = scheduleService.getWeeklySchedule(teacherId);
         Map<DayOfWeek, Map<Long, TeacherSchedule>> byDayAndSlot = new EnumMap<>(DayOfWeek.class);
@@ -88,7 +88,7 @@ public class ExcelExportService {
         int rowCount = Math.max(weekdaySlots.size(), weekendSlots.size());
 
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Weekly Schedule");
+            Sheet sheet = workbook.createSheet("Haftalık Program");
 
             CellStyle headerStyle = createHeaderStyle(workbook);
             CellStyle freeStyle = createColoredStyle(workbook, IndexedColors.LIGHT_GREEN);
@@ -96,7 +96,7 @@ public class ExcelExportService {
             CellStyle blockedStyle = createColoredStyle(workbook, IndexedColors.GREY_25_PERCENT);
 
             Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("Time");
+            header.createCell(0).setCellValue("Saat");
             for (int col = 0; col < DISPLAY_DAYS.length; col++) {
                 Cell cell = header.createCell(col + 1);
                 cell.setCellValue(DAY_NAMES.get(DISPLAY_DAYS[col]));
@@ -129,7 +129,7 @@ public class ExcelExportService {
 
                     switch (entry.getStatus()) {
                         case FREE -> {
-                            cell.setCellValue("Free");
+                            cell.setCellValue("Boş");
                             cell.setCellStyle(freeStyle);
                         }
                         case BUSY -> {
@@ -137,7 +137,7 @@ public class ExcelExportService {
                             cell.setCellStyle(busyStyle);
                         }
                         case BLOCKED -> {
-                            cell.setCellValue("Blocked");
+                            cell.setCellValue("Bloklu");
                             cell.setCellStyle(blockedStyle);
                         }
                     }
@@ -152,7 +152,7 @@ public class ExcelExportService {
             workbook.write(out);
             return out.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to generate Excel file: " + e.getMessage(), e);
+            throw new RuntimeException("Excel dosyası oluşturulamadı: " + e.getMessage(), e);
         }
     }
 

@@ -48,7 +48,7 @@ public class TeacherServiceTest {
                 () -> teacherService.getTeacherById(1L)
         );
 
-        assertEquals("Teacher not found: 1", exception.getMessage());
+        assertEquals("Öğretmen bulunamadı: 1", exception.getMessage());
     }
 
     @Test

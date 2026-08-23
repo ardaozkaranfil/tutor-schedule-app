@@ -83,15 +83,15 @@ public class ExcelExportServiceTest {
             Sheet sheet = workbook.getSheetAt(0);
 
             Row header = sheet.getRow(0);
-            assertEquals("Time", header.getCell(0).getStringCellValue());
-            assertEquals("Monday", header.getCell(1).getStringCellValue());
-            assertEquals("Sunday", header.getCell(7).getStringCellValue());
+            assertEquals("Saat", header.getCell(0).getStringCellValue());
+            assertEquals("Pazartesi", header.getCell(1).getStringCellValue());
+            assertEquals("Pazar", header.getCell(7).getStringCellValue());
 
             Row dataRow = sheet.getRow(1);
             assertEquals("09:00-09:40", dataRow.getCell(0).getStringCellValue());
-            assertEquals("Free", dataRow.getCell(1).getStringCellValue());       // Monday
-            assertEquals("12-MF", dataRow.getCell(2).getStringCellValue());     // Tuesday
-            assertEquals("Blocked", dataRow.getCell(3).getStringCellValue());   // Wednesday
+            assertEquals("Boş", dataRow.getCell(1).getStringCellValue());       // Pazartesi
+            assertEquals("12-MF", dataRow.getCell(2).getStringCellValue());     // Salı
+            assertEquals("Bloklu", dataRow.getCell(3).getStringCellValue());   // Çarşamba
             assertEquals("-", dataRow.getCell(4).getStringCellValue());         // Thursday, no entry
             assertEquals("-", dataRow.getCell(6).getStringCellValue());         // Saturday, no weekend slots
         }

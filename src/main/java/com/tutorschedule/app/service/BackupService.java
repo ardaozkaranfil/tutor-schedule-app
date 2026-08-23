@@ -81,7 +81,7 @@ public class BackupService {
      */
     public void restore(File backupFile) {
         if (!backupFile.exists()) {
-            throw new IllegalArgumentException("Backup file not found: " + backupFile.getName());
+            throw new IllegalArgumentException("Yedek dosyası bulunamadı: " + backupFile.getName());
         }
 
         try {
@@ -95,12 +95,12 @@ public class BackupService {
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
-                throw new IllegalStateException("Restore failed with exit code " + exitCode);
+                throw new IllegalStateException("Geri yükleme başarısız oldu, çıkış kodu: " + exitCode);
             }
 
             log.info("Restore completed from: {}", backupFile.getName());
         } catch (java.io.IOException | InterruptedException e) {
-            throw new IllegalStateException("Restore failed for file " + backupFile.getName(), e);
+            throw new IllegalStateException("Dosya için geri yükleme başarısız: " + backupFile.getName(), e);
         }
     }
 }

@@ -21,6 +21,6 @@ public class BackupServiceTest {
                 () -> backupService.restore(missingFile)
         );
 
-        assertEquals("Backup file not found: " + missingFile.getName(), exception.getMessage());
+        assertEquals("Yedek dosyası bulunamadı: " + missingFile.getName(), exception.getMessage());
     }
 }

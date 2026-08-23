@@ -7,6 +7,7 @@ import com.tutorschedule.app.entity.TimeSlot;
 import com.tutorschedule.app.repository.ClassGroupRepository;
 import com.tutorschedule.app.repository.TeacherScheduleRepository;
 import com.tutorschedule.app.repository.TimeSlotRepository;
+import com.tutorschedule.app.util.DayOfWeekTr;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -78,14 +79,14 @@ public class ScheduleService {
                 .filter(e -> e.getTimeSlotId().equals(timeSlotId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No schedule entry for teacher " + teacherId + " on " + dayOfWeek + " at slot " + timeSlotId));
+                        "Öğretmen " + teacherId + " için " + DayOfWeekTr.of(dayOfWeek) + " günü, " + timeSlotId + " numaralı saatte program kaydı yok"));
 
         if (status == TeacherScheduleStatus.BUSY) {
             if (className == null || className.isBlank()) {
-                throw new IllegalArgumentException("Class name is required when marking a slot as busy");
+                throw new IllegalArgumentException("Bir saati meşgul olarak işaretlemek için sınıf adı zorunludur");
             }
             if (!classGroupRepository.existsById(className)) {
-                throw new IllegalArgumentException("Class not found: " + className);
+                throw new IllegalArgumentException("Sınıf bulunamadı: " + className);
             }
             entry.setClassName(className);
         } else {

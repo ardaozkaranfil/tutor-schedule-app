@@ -31,7 +31,7 @@ public class StudentService {
      */
     public Student getStudentById(Long id){
         return studentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Öğrenci bulunamadı: " + id));
     }
 
     /**
@@ -56,7 +56,7 @@ public class StudentService {
     @Transactional
     public Student createStudent(Long id, String className, String fullName){
         if (studentRepository.existsById(id)) {
-            throw new IllegalArgumentException("This number already exists: " + id);
+            throw new IllegalArgumentException("Bu numara zaten kayıtlı: " + id);
         }
         Student student = new Student();
         student.setId(id);

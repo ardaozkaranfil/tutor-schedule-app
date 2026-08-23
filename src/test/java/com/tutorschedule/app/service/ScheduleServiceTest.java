@@ -106,7 +106,7 @@ public class ScheduleServiceTest {
                 () -> scheduleService.updateScheduleEntry(1L, DayOfWeek.MONDAY, 10L, TeacherScheduleStatus.BUSY, "  ")
         );
 
-        assertEquals("Class name is required when marking a slot as busy", exception.getMessage());
+        assertEquals("Bir saati meşgul olarak işaretlemek için sınıf adı zorunludur", exception.getMessage());
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ScheduleServiceTest {
                 () -> scheduleService.updateScheduleEntry(1L, DayOfWeek.MONDAY, 10L, TeacherScheduleStatus.BUSY, "12-MF")
         );
 
-        assertEquals("Class not found: 12-MF", exception.getMessage());
+        assertEquals("Sınıf bulunamadı: 12-MF", exception.getMessage());
     }
 
     @Test

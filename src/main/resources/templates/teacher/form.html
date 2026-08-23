@@ -37,7 +37,7 @@
                 <thead>
                 <tr>
                     <th>Saat</th>
-                    <th th:each="day : ${weekdayDays}" th:text="${day}"></th>
+                    <th th:each="day : ${weekdayDays}" th:text="${T(com.tutorschedule.app.util.DayOfWeekTr).of(day)}"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -62,7 +62,7 @@
                 <thead>
                 <tr>
                     <th>Saat</th>
-                    <th th:each="day : ${weekendDays}" th:text="${day}"></th>
+                    <th th:each="day : ${weekendDays}" th:text="${T(com.tutorschedule.app.util.DayOfWeekTr).of(day)}"></th>
                 </tr>
                 </thead>
                 <tbody>

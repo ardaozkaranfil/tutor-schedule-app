@@ -63,22 +63,22 @@ public class ExcelImportService {
                         successCount++;
                     }
                 } catch (Exception e) {
-                    errors.add("Row " + (rowIndex + 1) + ": " + e.getMessage());
+                    errors.add("Satır " + (rowIndex + 1) + ": " + e.getMessage());
                 }
 
                 rowIndex++;
             }
         }
         catch (IOException e){
-            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
+            throw new RuntimeException("Excel dosyası okunamadı: " + e.getMessage(), e);
         }
 
         backupService.performBackup(BackupTrigger.SCHEDULE_SAVE);
 
         if (errors.isEmpty()) {
-            return successCount + " students imported successfully.";
+            return successCount + " öğrenci başarıyla içe aktarıldı.";
         }
-        return successCount + " students imported, " + errors.size() + " row(s) failed: " + String.join("; ", errors);
+        return successCount + " öğrenci içe aktarıldı, " + errors.size() + " satır başarısız: " + String.join("; ", errors);
     }
 
     /**
@@ -102,7 +102,7 @@ public class ExcelImportService {
         try {
             id = Long.parseLong(studentNo);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("Invalid student number '" + studentNo + "'");
+            throw new NumberFormatException("Geçersiz öğrenci numarası '" + studentNo + "'");
         }
 
         if (!classGroupRepository.existsById(studentClass)) {

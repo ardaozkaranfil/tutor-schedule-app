@@ -48,7 +48,7 @@ public class TimeSlotServiceTest {
                 () -> timeSlotService.getTimeSlotById(1L)
         );
 
-        assertEquals("Time slot not found: 1", exception.getMessage());
+        assertEquals("Zaman aralığı bulunamadı: 1", exception.getMessage());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TimeSlotServiceTest {
                 () -> timeSlotService.addTimeSlot(TimeSlotDayType.WEEKDAY, LocalTime.of(14,0), LocalTime.of(13,0))
         );
 
-        assertEquals("End time must be after start time", exception.getMessage());
+        assertEquals("Bitiş saati başlangıç saatinden sonra olmalı", exception.getMessage());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class TimeSlotServiceTest {
                 () -> timeSlotService.updateTimeSlot(1L, LocalTime.of(14, 40), LocalTime.of(14, 0))
         );
 
-        assertEquals("End time must be after start time", exception.getMessage());
+        assertEquals("Bitiş saati başlangıç saatinden sonra olmalı", exception.getMessage());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class TimeSlotServiceTest {
                 () -> timeSlotService.updateTimeSlot(1L, LocalTime.of(14, 0), LocalTime.of(14, 40))
         );
 
-        assertEquals("Time slot overlaps with an existing one: 14:20 - 15:00", exception.getMessage());
+        assertEquals("Bu saat mevcut bir saatle çakışıyor: 14:20 - 15:00", exception.getMessage());
     }
 
     @Test

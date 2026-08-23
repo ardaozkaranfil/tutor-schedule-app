@@ -50,16 +50,16 @@ public class AppointmentService {
     @Transactional
     public Appointment createAppointment(Long teacherId, Long timeSlotId, Long studentId, LocalDate appointmentDate){
         if (teacherRepository.findById(teacherId).isEmpty()) {
-            throw new IllegalArgumentException("Teacher not found: " + teacherId);
+            throw new IllegalArgumentException("Öğretmen bulunamadı: " + teacherId);
         }
 
         boolean isAvailable = scheduleAvailabilityService.isSlotAvailable(teacherId, timeSlotId, appointmentDate);
 
         if (!isAvailable) {
-            throw new IllegalArgumentException("This slot is not available.");
+            throw new IllegalArgumentException("Bu saat müsait değil.");
         }
         if (studentRepository.findById(studentId).isEmpty()) {
-            throw new IllegalArgumentException("Student not found: " + studentId);
+            throw new IllegalArgumentException("Öğrenci bulunamadı: " + studentId);
         }
 
         Appointment appointment = new Appointment(teacherId, timeSlotId, studentId, appointmentDate, AppointmentStatus.ACTIVE);
@@ -74,7 +74,7 @@ public class AppointmentService {
     @Transactional
     public void cancelAppointment(Long id){
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Randevu bulunamadı: " + id));
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);

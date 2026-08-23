@@ -67,7 +67,7 @@ public class AppointmentServiceTest {
                 () -> appointmentService.createAppointment(1L, 10L, 5L, LocalDate.now())
         );
 
-        assertEquals("Teacher not found: 1", exception.getMessage());
+        assertEquals("Öğretmen bulunamadı: 1", exception.getMessage());
         verify(scheduleAvailabilityService, never()).isSlotAvailable(
                 org.mockito.ArgumentMatchers.anyLong(),
                 org.mockito.ArgumentMatchers.anyLong(),
@@ -89,7 +89,7 @@ public class AppointmentServiceTest {
                 () -> appointmentService.createAppointment(1L, 10L, 5L, date)
         );
 
-        assertEquals("This slot is not available.", exception.getMessage());
+        assertEquals("Bu saat müsait değil.", exception.getMessage());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class AppointmentServiceTest {
                 () -> appointmentService.createAppointment(1L, 10L, 5L, date)
         );
 
-        assertEquals("Student not found: 5", exception.getMessage());
+        assertEquals("Öğrenci bulunamadı: 5", exception.getMessage());
     }
 
     @Test
@@ -151,7 +151,7 @@ public class AppointmentServiceTest {
                 () -> appointmentService.cancelAppointment(1L)
         );
 
-        assertEquals("Appointment not found: 1", exception.getMessage());
+        assertEquals("Randevu bulunamadı: 1", exception.getMessage());
     }
 
     @Test

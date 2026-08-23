@@ -64,7 +64,7 @@ public class TeacherService {
      */
     public Teacher getTeacherById(Long id) {
         return teacherRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Öğretmen bulunamadı: " + id));
     }
 
     /**

@@ -91,7 +91,7 @@ public class ExcelImportServiceTest {
                 () -> excelImportService.mapRowToStudent(row)
         );
 
-        assertEquals("Invalid student number 'abc'", exception.getMessage());
+        assertEquals("Geçersiz öğrenci numarası 'abc'", exception.getMessage());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ExcelImportServiceTest {
 
         String summary = excelImportService.importFromExcel(file);
 
-        assertEquals("2 students imported successfully.", summary);
+        assertEquals("2 öğrenci başarıyla içe aktarıldı.", summary);
     }
 
     @Test
@@ -149,8 +149,8 @@ public class ExcelImportServiceTest {
 
         String summary = excelImportService.importFromExcel(file);
 
-        assertTrue(summary.startsWith("1 students imported, 1 row(s) failed"));
-        assertTrue(summary.contains("Row 2"));
+        assertTrue(summary.startsWith("1 öğrenci içe aktarıldı, 1 satır başarısız"));
+        assertTrue(summary.contains("Satır 2"));
     }
 
     @Test
