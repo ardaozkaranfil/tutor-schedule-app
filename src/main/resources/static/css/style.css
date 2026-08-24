@@ -71,12 +71,22 @@ body > section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 20px;
 }
 
 .page-header h1 {
     margin: 0;
     font-size: 30px;
+}
+
+h2 {
+    font-size: 16px;
+    color: var(--color-text);
+    margin: 24px 0 12px;
+}
+
+.side-form h2 {
+    margin-top: 0;
 }
 
 .btn {
@@ -108,16 +118,13 @@ body > section {
 }
 
 .link-danger {
-    background: none;
-    border: none;
-    padding: 0;
-    color:var(--color-text-muted);
+    all: unset;
     cursor: pointer;
-    font: inherit;
+    color: var(--color-text-muted) !important;
 }
 
 .link-danger:hover {
-    color: #c0392b;
+    color: #c0392b !important;
     text-decoration: underline;
 }
 
@@ -125,14 +132,14 @@ body > section {
     display: flex;
     gap: 12px;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 20px;
 }
 
 .select-bar {
     display: flex;
     gap: 12px;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 20px;
 }
 
 input, select {
@@ -181,14 +188,17 @@ input:focus, select:focus {
 }
 
 .actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+    white-space: nowrap;
+}
+
+.actions form {
+    display: inline;
 }
 
 .actions a {
     color: var(--color-text-muted);
     text-decoration: none;
+    margin-right: 8px;
 }
 
 .actions a:hover {
@@ -329,4 +339,40 @@ label {
 
 .student-suggestions div:hover {
     background: #f2f1ec;
+}
+
+section:has(.side-form) {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    grid-template-areas:
+        "header header"
+        "filter filter"
+        "table  side"
+        "table  import";
+    column-gap: 24px;
+    row-gap: 16px;
+    align-items: start;
+    align-content: start;
+}
+
+section:has(.side-form) > .page-header {
+    grid-area: header;
+    margin-bottom: 0;
+}
+section:has(.side-form) > .filter-bar {
+    grid-area: filter;
+    margin-bottom: 0;
+}
+section:has(.side-form) > .data-table {
+    grid-area: table;
+}
+section:has(.side-form) > .side-form {
+    grid-area: side;
+}
+section:has(.side-form) > form {
+    grid-area: import;
+    min-width: 0;
+}
+section:has(.side-form) > form input[type="file"] {
+    width: 100%;
 }
