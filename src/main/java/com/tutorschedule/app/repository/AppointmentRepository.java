@@ -15,12 +15,6 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
     /**
-     * Checks whether an appointment already exists for the given teacher,
-     * time slot, and date, regardless of its status.
-     */
-    boolean existsByTeacherIdAndTimeSlotIdAndAppointmentDate(Long teacherId, Long timeSlotId, LocalDate appointmentDate);
-
-    /**
      * Returns all of a teacher's appointments on a given date; used by
      * availability calculations (ScheduleAvailabilityService).
      */
