@@ -21,7 +21,7 @@ body {
 }
 
 aside {
-    width: 200px;
+    width: 235px;
     flex-shrink: 0;
     background: var(--color-sidebar-bg);
     padding: 24px 16px;
@@ -31,4 +31,38 @@ aside {
 body > section {
     flex: 1;
     padding: 24px 32px;
+}
+
+.sidebar-title {
+    color: var(--color-primary);
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 4px;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.sidebar-menu a:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+.sidebar-menu a.active {
+    background: #dcece4;
+    color: var(--color-primary);
+    font-weight: 600;
 }
