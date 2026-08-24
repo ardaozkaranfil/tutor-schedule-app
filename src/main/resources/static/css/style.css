@@ -176,6 +176,10 @@ input:focus, select:focus {
     border-bottom: none;
 }
 
+.schedule-grid th:not(:first-child) {
+    text-align: center;
+}
+
 .actions {
     display: flex;
     gap: 8px;
@@ -190,4 +194,34 @@ input:focus, select:focus {
 .actions a:hover {
     color: var(--color-primary);
     text-decoration: underline;
+}
+
+.schedule-cell {
+    text-align: center;
+    padding: 8px;
+    cursor: pointer;
+    position: relative;
+}
+
+.cell-display {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.schedule-cell.status-FREE .cell-display {
+    background: #e3f5ec;
+    color: var(--color-primary);
+}
+
+.schedule-cell.status-BUSY .cell-display {
+    background: #f7ecd9;
+    color: #8a6d3b;
+}
+
+.schedule-cell.status-BLOCKED .cell-display {
+    background: #e9e7e2;
+    color: #6b6b6b;
 }
