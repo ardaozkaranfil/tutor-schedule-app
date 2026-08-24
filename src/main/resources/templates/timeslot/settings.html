@@ -13,8 +13,10 @@
         <div class="weekdaytimeslot-column">
             <h2>Haftaiçi Saatleri</h2>
             <div class="timeslot-row" th:each="slot : ${weekdaySlots}" th:attr="data-id=${slot.id}">
-                <span class="slot-display"
-                    th:text="${#temporals.format(slot.startTime,'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime,'HH:mm')}">
+                <span class="slot-display">
+                    <span class="slot-time" th:text="${#temporals.format(slot.startTime,'HH:mm')}"></span>
+                    <span class="slot-separator">—</span>
+                    <span class="slot-time" th:text="${#temporals.format(slot.endTime,'HH:mm')}"></span>
                 </span>
 
                 <form class="slot-edit-form" th:action="@{/timeslots/edit/{id}(id=${slot.id})}" method="post" style="display:none">
@@ -40,8 +42,10 @@
         <div class="weekendtimeslot-column">
             <h2>Haftasonu Saatleri</h2>
             <div class="timeslot-row" th:each="slot : ${weekendSlots}" th:attr="data-id=${slot.id}">
-                <span class="slot-display"
-                      th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}">
+                <span class="slot-display">
+                    <span class="slot-time" th:text="${#temporals.format(slot.startTime,'HH:mm')}"></span>
+                    <span class="slot-separator">—</span>
+                    <span class="slot-time" th:text="${#temporals.format(slot.endTime,'HH:mm')}"></span>
                 </span>
 
                 <form class="slot-edit-form" th:action="@{/timeslots/edit/{id}(id=${slot.id})}" method="post" style="display:none">

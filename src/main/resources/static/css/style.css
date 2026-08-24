@@ -283,10 +283,20 @@ label {
 }
 
 .slot-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.slot-time {
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     padding: 8px 12px;
     background: #fff;
+}
+
+.slot-separator {
+    color: var(--color-text-muted);
 }
 
 .timeslot-row .link-danger {
