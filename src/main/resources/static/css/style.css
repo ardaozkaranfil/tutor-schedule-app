@@ -255,3 +255,38 @@ label {
     border-radius: var(--radius);
     padding: 20px;
 }
+
+.timeslot-columns {
+    display: flex;
+    gap: 48px;
+}
+
+.weekdaytimeslot-column, .weekendtimeslot-column {
+    flex: 1;
+}
+
+.timeslot-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.slot-display {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    background: #fff;
+}
+
+.timeslot-row .link-danger {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.weekdaytimeslot-column > form,
+.weekendtimeslot-column > form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
