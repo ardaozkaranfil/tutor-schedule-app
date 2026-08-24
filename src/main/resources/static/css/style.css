@@ -151,3 +151,43 @@ input:focus, select:focus {
     outline: none;
     border-color: var(--color-primary);
 }
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.actions a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+}
+
+.actions a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
