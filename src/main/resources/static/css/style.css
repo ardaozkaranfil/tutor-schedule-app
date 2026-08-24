@@ -290,3 +290,43 @@ label {
     gap: 8px;
     align-items: center;
 }
+
+.error {
+    color: #c0392b;
+}
+
+.success {
+    color: var(--color-primary);
+}
+
+.cell-edit-form, .cell-booking-form, .slot-edit-form {
+    flex-direction: column;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 12px;
+}
+
+.cell-edit-form, .cell-booking-form {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    min-width: 160px;
+}
+
+.student-suggestions {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.student-suggestions div {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.student-suggestions div:hover {
+    background: #f2f1ec;
+}
