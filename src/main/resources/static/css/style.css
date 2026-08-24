@@ -135,12 +135,12 @@ body > section {
     margin-bottom: 4px;
 }
 
-.select-bar select, .filter-bar select, .filter-bar input {
-    padding:8px 12px;
-    border:1px solid var(--color-border);
-    border-radius:var(--radius);
-    font:inherit;
-    color:var(--color-text);
+input, select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font: inherit;
+    color: var(--color-text);
 }
 
 input::placeholder {
@@ -224,4 +224,34 @@ input:focus, select:focus {
 .schedule-cell.status-BLOCKED .cell-display {
     background: #e9e7e2;
     color: #6b6b6b;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row label {
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.side-form {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px;
 }
