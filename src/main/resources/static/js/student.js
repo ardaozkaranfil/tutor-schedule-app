@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function (){
     const formTitle = document.getElementById('formTitle');
     const idInput = document.getElementById('studentId');
     const fullNameInput = document.getElementById('studentFullName');
-    const classNameSelect = document.getElementById('studentClassName');
+    const classNameInput = document.getElementById('studentClassName');
     const cancelBtn = document.getElementById('cancelEditBtn');
     let debounceTimer;
 
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function (){
                 idInput.value = student.id;
                 idInput.readOnly = true;
                 fullNameInput.value = student.fullName;
-                classNameSelect.value = student.className;
+                classNameInput.value = student.className;
 
                 form.action = '/students/edit/' + student.id;
                 formTitle.textContent = 'Öğrenci Düzenle';

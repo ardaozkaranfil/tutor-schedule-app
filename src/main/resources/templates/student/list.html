@@ -48,9 +48,10 @@
                 <input type="text" name="fullName" id="studentFullName" required>
             </label>
             <label>Sınıf
-                <select name="className" id="studentClassName" required>
-                    <option th:each="cg : ${classGroups}" th:value="${cg.name}" th:text="${cg.name}"></option>
-                </select>
+                <input type="text" name="className" id="studentClassName" list="classGroupList" required>
+                <datalist id="classGroupList">
+                    <option th:each="cg : ${classGroups}" th:value="${cg.name}"></option>
+                </datalist>
             </label>
             <button type="submit" class="btn btn-primary">Kaydet</button>
             <button type="button" id="cancelEditBtn" style="display:none">İptal</button>

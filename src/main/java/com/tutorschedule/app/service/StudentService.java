@@ -1,6 +1,8 @@
 package com.tutorschedule.app.service;
 
+import com.tutorschedule.app.entity.ClassGroup;
 import com.tutorschedule.app.entity.Student;
+import com.tutorschedule.app.repository.ClassGroupRepository;
 import com.tutorschedule.app.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,11 @@ import java.util.List;
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final ClassGroupRepository classGroupRepository;
 
-    public StudentService(StudentRepository studentRepository){
+    public StudentService(StudentRepository studentRepository, ClassGroupRepository classGroupRepository){
         this.studentRepository = studentRepository;
+        this.classGroupRepository = classGroupRepository;
     }
 
     /**
@@ -62,6 +66,10 @@ public class StudentService {
         student.setId(id);
         student.setClassName(className);
         student.setFullName(fullName);
+
+        if (!classGroupRepository.existsById(className)) {
+            classGroupRepository.save(new ClassGroup(className));
+        }
         return studentRepository.save(student);
     }
 
@@ -75,6 +83,10 @@ public class StudentService {
         existing.setId(id);
         existing.setClassName(className);
         existing.setFullName(fullName);
+
+        if (!classGroupRepository.existsById(className)) {
+            classGroupRepository.save(new ClassGroup(className));
+        }
         return studentRepository.save(existing);
     }
 
