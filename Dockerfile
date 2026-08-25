@@ -12,7 +12,10 @@ RUN mvn package -DskipTests -B
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y tzdata default-mysql-client && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Europe/Istanbul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY --from=build /app/target/*.jar app.jar
 
