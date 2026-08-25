@@ -1,6 +1,7 @@
 package com.tutorschedule.app.service;
 
 import com.tutorschedule.app.entity.Student;
+import com.tutorschedule.app.repository.ClassGroupRepository;
 import com.tutorschedule.app.repository.StudentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,9 @@ public class StudentServiceTest {
 
     @Mock
     private StudentRepository studentRepository;
+
+    @Mock
+    private ClassGroupRepository classGroupRepository;
 
     @InjectMocks
     private StudentService studentService;
@@ -50,6 +54,9 @@ public class StudentServiceTest {
 
         when(studentRepository.existsById(1L))
                 .thenReturn(false);
+
+        when(classGroupRepository.existsById("12-MF"))
+                .thenReturn(true);
 
         when(studentRepository.save(newStudent))
                 .thenReturn(newStudent);
