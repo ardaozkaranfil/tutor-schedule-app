@@ -79,6 +79,17 @@ public class BackupController {
         return "redirect:/backups";
     }
 
+    @PostMapping("/reset")
+    public String reset(RedirectAttributes redirectAttributes) {
+        try {
+            backupService.resetDatabase();
+            redirectAttributes.addFlashAttribute("successMessage", "Veritabanı sıfırlandı.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/backups";
+    }
+
     /**
      * Reads backups/ and parses each .sql file name into a {@link BackupEntry},
      * sorted newest-first. Returns an empty list if the folder doesn't exist
@@ -135,6 +146,7 @@ public class BackupController {
                 return switch (trigger) {
                     case STARTUP -> "Uygulama açılışı";
                     case SCHEDULE_SAVE -> "Ders programı kaydı";
+                    case RESET -> "Yıl sonu sıfırlama";
                 };
             }
         }

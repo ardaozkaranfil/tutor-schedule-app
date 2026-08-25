@@ -7,7 +7,8 @@ package com.tutorschedule.app.entity;
  */
 public enum BackupTrigger {
     STARTUP("startup"),
-    SCHEDULE_SAVE("schedule-save");
+    SCHEDULE_SAVE("schedule-save"),
+    RESET("reset");
 
     private final String label;
 

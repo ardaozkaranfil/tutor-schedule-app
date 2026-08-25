@@ -7,6 +7,9 @@
 <section>
     <div class="page-header">
         <h1>Yedekleme</h1>
+        <form th:action="@{/backups/reset}" method="post" id="resetForm">
+            <button type="button" class="link-danger" onclick="confirmReset()">Veritabanını Sıfırla</button>
+        </form>
     </div>
 
     <p th:if="${successMessage}" th:text="${successMessage}" class="success"></p>
@@ -37,6 +40,15 @@
         </tr>
         </tbody>
     </table>
+
+    <script th:inline="javascript">
+        function confirmReset() {
+            if (!confirm('Tüm veritabanı silinecek (öğrenciler, öğretmenler, program, randevular). Emin misiniz?')) return;
+            if (!confirm('Bu işlem GERİ ALINAMAZ. Devam etmeden önce güvenlik yedeği otomatik alınacak ama yine de emin misiniz?')) return;
+            if (prompt('Son onay: devam etmek için aşağıya SIFIRLA yazın.') !== 'SIFIRLA') return;
+            document.getElementById('resetForm').submit();
+        }
+    </script>
 </section>
 </body>
 </html>
