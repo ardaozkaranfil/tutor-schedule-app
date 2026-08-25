@@ -37,6 +37,9 @@ public class BackupService {
     @Value("${app.backup.db-name}")
     private String dbName;
 
+    @Value("${DB_HOST:localhost}")
+    private String dbHost;
+
     /**
      * Runs mysqldump and writes the output as a .sql file into backups/.
      * If mysqldump exits with a non-zero code, the half-written file is
@@ -52,7 +55,7 @@ public class BackupService {
             File outputFile = BACKUP_DIR.resolve(fileName).toFile();
 
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "mysqldump", "-u", dbUser, dbName
+                    "mysqldump", "-h", dbHost, "-u", dbUser, dbName
             );
             processBuilder.environment().put("MYSQL_PWD", dbPassword);
             processBuilder.redirectOutput(outputFile);
@@ -86,7 +89,7 @@ public class BackupService {
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "mysql", "-u", dbUser, dbName
+                    "mysql", "-h", dbHost, "-u", dbUser, dbName
             );
             processBuilder.environment().put("MYSQL_PWD", dbPassword);
             processBuilder.redirectInput(backupFile);
