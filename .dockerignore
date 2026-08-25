@@ -1,0 +1,10 @@
+target/
+backups/
+.git/
+.idea/
+.mvn/wrapper/maven-wrapper.jar
+*.md
+docs/
+postman/
+.github/
+.env
