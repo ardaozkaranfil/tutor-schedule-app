@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,7 +58,7 @@ public class ExcelExportServiceTest {
     }
 
     @Test
-    void exportTeacherSchedule_buildsHeaderAndMarksStatusesCorrectly() throws IOException {
+    void exportTeacherSchedule_buildsTwoTablesAndMarksStatusesCorrectly() throws IOException {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(mock(Teacher.class)));
 
         TimeSlot weekdaySlot = new TimeSlot(TimeSlotDayType.WEEKDAY, LocalTime.of(9, 0), LocalTime.of(9, 40));
@@ -82,23 +83,37 @@ public class ExcelExportServiceTest {
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
             Sheet sheet = workbook.getSheetAt(0);
 
-            Row header = sheet.getRow(0);
+            // Row 0: section titles
+            Row titleRow = sheet.getRow(0);
+            assertEquals("Haftaiçi Programı", titleRow.getCell(0).getStringCellValue());
+            assertEquals("Haftasonu Programı", titleRow.getCell(7).getStringCellValue());
+
+            // Row 1: "Saat" + day-name headers for both tables
+            Row header = sheet.getRow(1);
             assertEquals("Saat", header.getCell(0).getStringCellValue());
             assertEquals("Pazartesi", header.getCell(1).getStringCellValue());
-            assertEquals("Pazar", header.getCell(7).getStringCellValue());
+            assertEquals("Cuma", header.getCell(5).getStringCellValue());
+            assertEquals("Saat", header.getCell(7).getStringCellValue());
+            assertEquals("Cumartesi", header.getCell(8).getStringCellValue());
+            assertEquals("Pazar", header.getCell(9).getStringCellValue());
 
-            Row dataRow = sheet.getRow(1);
+            // Row 2: first (and only) weekday data row
+            Row dataRow = sheet.getRow(2);
             assertEquals("09:00-09:40", dataRow.getCell(0).getStringCellValue());
             assertEquals("Boş", dataRow.getCell(1).getStringCellValue());       // Pazartesi
             assertEquals("12-MF", dataRow.getCell(2).getStringCellValue());     // Salı
             assertEquals("Bloklu", dataRow.getCell(3).getStringCellValue());   // Çarşamba
-            assertEquals("-", dataRow.getCell(4).getStringCellValue());         // Thursday, no entry
-            assertEquals("-", dataRow.getCell(6).getStringCellValue());         // Saturday, no weekend slots
+            assertEquals("-", dataRow.getCell(4).getStringCellValue());         // Perşembe, no entry
+
+            // No weekend slots at all -> weekend table has no data cells in this row
+            assertNull(dataRow.getCell(7));
+            assertNull(dataRow.getCell(8));
+            assertNull(dataRow.getCell(9));
         }
     }
 
     @Test
-    void exportTeacherSchedule_fillsShorterSideWithDashWhenSlotCountsDiffer() throws IOException {
+    void exportTeacherSchedule_weekdayAndWeekendTablesHaveIndependentRowCounts() throws IOException {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(mock(Teacher.class)));
 
         TimeSlot weekdaySlotA = new TimeSlot(TimeSlotDayType.WEEKDAY, LocalTime.of(9, 0), LocalTime.of(9, 40));
@@ -119,11 +134,21 @@ public class ExcelExportServiceTest {
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
             Sheet sheet = workbook.getSheetAt(0);
 
-            // 2 weekday slots vs 1 weekend slot -> rowCount = 2
-            Row secondDataRow = sheet.getRow(2); // rowIdx = 1
+            // Row 2 (first data row): both tables have a row here
+            Row firstDataRow = sheet.getRow(2);
+            assertEquals("09:00-09:40", firstDataRow.getCell(0).getStringCellValue());
+            assertEquals("-", firstDataRow.getCell(1).getStringCellValue());
+            assertEquals("11:00-11:40", firstDataRow.getCell(7).getStringCellValue());
+            assertEquals("-", firstDataRow.getCell(8).getStringCellValue());
+            assertEquals("-", firstDataRow.getCell(9).getStringCellValue());
+
+            // Row 3 (second data row): only the weekday table has a second slot,
+            // the weekend table is exhausted so its columns stay untouched.
+            Row secondDataRow = sheet.getRow(3);
             assertEquals("10:00-10:40", secondDataRow.getCell(0).getStringCellValue());
-            assertEquals("-", secondDataRow.getCell(6).getStringCellValue()); // Saturday, weekend slots exhausted
-            assertEquals("-", secondDataRow.getCell(7).getStringCellValue()); // Sunday, weekend slots exhausted
+            assertNull(secondDataRow.getCell(7));
+            assertNull(secondDataRow.getCell(8));
+            assertNull(secondDataRow.getCell(9));
         }
     }
 }

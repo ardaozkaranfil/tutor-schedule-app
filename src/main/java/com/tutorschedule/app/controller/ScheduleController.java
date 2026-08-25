@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -101,15 +103,21 @@ public class ScheduleController {
 
     /**
      * Downloads the selected teacher's weekly schedule as an .xlsx file.
+     * File name is "<TeacherName>_<yyyy-MM-dd>.xlsx".
      */
     @GetMapping("/export/{teacherId}")
     @ResponseBody
     public ResponseEntity<byte[]> exportSchedule(@PathVariable Long teacherId) {
         byte[] excelBytes = excelExportService.exportTeacherSchedule(teacherId);
+        String baseName = excelExportService.buildExportFileBaseName(teacherId);
+        String fileName = baseName + ".xlsx";
+        String asciiFileName = excelExportService.toAsciiFallback(fileName);
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=schedule-" + teacherId + ".xlsx")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + asciiFileName + "\"; filename*=UTF-8''" + encodedFileName)
                 .body(excelBytes);
     }
 
