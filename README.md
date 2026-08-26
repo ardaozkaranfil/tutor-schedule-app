@@ -6,7 +6,7 @@ A scheduling and appointment system built for a cram school. It replaces a paper
 
 ## Status
 
-Work in progress. Started July 2026, built alongside coursework as a self-directed summer project.
+Finished and in active use — currently running at 2 tutoring centers. Built between July–August 2026 alongside coursework as a self-directed summer project.
 
 ## What it does
 
@@ -19,7 +19,10 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 - Weekly and daily teacher schedules can be exported to Excel in a printable layout.
 - Teachers and students can be added in bulk.
 - Database backups are taken automatically (on app startup and whenever a schedule is saved) and can be restored from a saved dump.
-- Runs locally, on the guidance counselor's machine — not deployed to the internet.
+- Class groups can be created on the fly from the student add/edit form, not just via Excel import.
+- Student and teacher lists have a name search bar.
+- The database can be reset for a new school year (triple-confirmation to prevent accidental data loss), with old backups retained.
+- Runs locally, on the guidance counselor's machine — not deployed to the internet. Each tutoring center using it runs its own independent local install; there's no shared or central server between them.
 
 ## Tech stack
 
@@ -31,7 +34,7 @@ Work in progress. Started July 2026, built alongside coursework as a self-direct
 - Apache POI (Excel import/export)
 - JUnit 5 / Mockito (unit tests), H2 (in-memory test database), JaCoCo (coverage)
 - Postman (manual API testing/collection)
-- Docker (containerized setup, planned)
+- Docker (app + MySQL containers via docker-compose)
 
 ## Data model
 
@@ -41,14 +44,24 @@ Six entities: `Teacher`, `Student`, `ClassGroup`, `TimeSlot`, `TeacherSchedule`,
 
 ## Running it — for the guidance counselor
 
-No installation, no commands. Double-click `run.bat` on the desktop. It starts MySQL if it isn't already running, launches the app, and opens it in the browser automatically at `http://localhost:8080`.
+No installation, no commands. Double-click `run.bat`. It brings up the app and its MySQL database as Docker containers (`docker compose up -d`), waits until the app responds, then opens it in the browser automatically at `http://localhost:8080`.
 
 ## Design
 
-Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-stage mockup, not a screenshot of the working app. Real screenshots will replace this once the frontend is done.
+Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-stage mockup, not a screenshot of the working app. Real screenshots of the finished app are coming soon.
 
 ## Running it — for development
 
+**Option A — Docker (matches production/`run.bat`):**
+1. Clone the repo.
+2. Copy `.env.example` to `.env` and set `DB_NAME` / `DB_PASSWORD`.
+3. Run:
+   ```
+   docker compose up -d
+   ```
+4. Open `http://localhost:8080`.
+
+**Option B — local MySQL (faster edit/rebuild loop):**
 1. Clone the repo.
 2. Create a MySQL database:
    ```sql
@@ -60,12 +73,6 @@ Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-
    ./mvnw spring-boot:run
    ```
 5. Open `http://localhost:8080`.
-
-To produce the packaged version used by `run.bat`:
-```
-./mvnw clean package
-```
-This generates a runnable `.jar` under `target/`, which `run.bat` calls with `java -jar`.
 
 ## Testing
 
@@ -84,7 +91,7 @@ Tests run against an in-memory H2 database (configured in `src/test/resources/ap
 
 Every push and pull request to `main` also runs this via GitHub Actions (see `.github/workflows/ci.yml`).
 
-Test coverage is measured with JaCoCo. Running `./mvnw test` also generates an HTML report at `target/site/jacoco/index.html` (not committed — regenerate it locally). Current coverage on the service layer, where the unit tests are focused, is ~88% instructions / ~83% branches.
+Test coverage is measured with JaCoCo. Running `./mvnw test` also generates an HTML report at `target/site/jacoco/index.html` (not committed — regenerate it locally). Current coverage on the service layer, where the unit tests are focused, is ~78% instructions / ~80% branches.
 
 ### API testing with Postman
 
@@ -95,10 +102,11 @@ To use it:
 2. The `baseUrl` collection variable is preset to `http://localhost:8080` — update it if the app runs on a different port.
 3. Start the app (see "Running it — for development" above), then send any request in the collection.
 
-Note: the frontend (Thymeleaf templates) is still a work in progress, so most of the app's create/edit flows are currently only exercised through this collection (or directly against the endpoints) rather than through a rendered form.
+Note: the Postman collection only covers the app's JSON/file-download endpoints (search, lookup, export) — the rest of the create/edit flows go through the Thymeleaf UI.
 
 ## Notes
 
 - `application.properties` is gitignored — it holds real database credentials and should never be committed. Use `application.properties.example` as a template.
 - No user data (student names, course numbers) is committed to this repo. The app is tested with placeholder data.
 - CI runs on GitHub Actions against Java 21; see the badge above or the Actions tab for build status.
+- Backups are timestamped in the app's container timezone (Europe/Istanbul), so file names reflect local time regardless of the host machine.
