@@ -44,7 +44,7 @@ Six entities: `Teacher`, `Student`, `ClassGroup`, `TimeSlot`, `TeacherSchedule`,
 
 ## Running it — for the guidance counselor
 
-No installation, no commands. Double-click `run.bat`. It brings up the app and its MySQL database as Docker containers (`docker compose up -d`), waits until the app responds, then opens it in the browser automatically at `http://localhost:8080`.
+No installation, no commands. Double-click `run.bat`. It brings up the app and its MySQL database as Docker containers (`docker compose up -d`), waits until the app responds, then opens it in the browser automatically at `http://localhost:8080/appointments`.
 
 ## Design
 
@@ -59,7 +59,7 @@ Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-
    ```
    docker compose up -d
    ```
-4. Open `http://localhost:8080`.
+4. Open `http://localhost:8080/appointments`.
 
 **Option B — local MySQL (faster edit/rebuild loop):**
 1. Clone the repo.
@@ -72,7 +72,7 @@ Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-
    ```
    ./mvnw spring-boot:run
    ```
-5. Open `http://localhost:8080`.
+5. Open `http://localhost:8080/appointments`.
 
 ## Testing
 
