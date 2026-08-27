@@ -74,6 +74,7 @@
             <thead>
             <tr>
                 <th>Tarih</th>
+                <th>Saat</th>
                 <th>Öğretmen</th>
                 <th>Öğrenci</th>
                 <th>İşlem</th>
@@ -82,6 +83,7 @@
             <tbody>
             <tr th:each="appointment : ${upcomingAppointments}">
                 <td th:text="${appointment.date()}"></td>
+                <td th:text="${appointment.time()}"></td>
                 <td th:text="${appointment.teacherName()}"></td>
                 <td th:text="${appointment.studentName()}"></td>
                 <td class="action">

@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,14 +141,21 @@ public class AppointmentController {
     private List<UpcomingAppointmentRow> buildUpcomingAppointmentRows() {
         return appointmentService.getAppointments().stream()
                 .map(this::toUpcomingRow)
+                .sorted(Comparator.comparing(UpcomingAppointmentRow::date)
+                        .thenComparing(UpcomingAppointmentRow::time))
                 .toList();
     }
 
     private UpcomingAppointmentRow toUpcomingRow(Appointment appointment) {
         Teacher teacher = teacherService.getTeacherById(appointment.getTeacherId());
         Student student = studentService.getStudentById(appointment.getStudentId());
+        TimeSlot slot = timeSlotRepository.findById(appointment.getTimeSlotId()).orElse(null);
+        String time = (slot != null)
+                ? slot.getStartTime() + " - " + slot.getEndTime()
+                : "";
         return new UpcomingAppointmentRow(
                 appointment.getId(),
+                time,
                 appointment.getAppointmentDate(),
                 teacher.getFullName(),
                 student.getFullName());
@@ -157,6 +165,6 @@ public class AppointmentController {
      * Display-only row for the upcoming appointments table — keeps the
      * template from having to call back into services for names.
      */
-    private record UpcomingAppointmentRow(Long id, LocalDate date, String teacherName, String studentName) {
+    private record UpcomingAppointmentRow(Long id, String time, LocalDate date, String teacherName, String studentName) {
     }
 }
