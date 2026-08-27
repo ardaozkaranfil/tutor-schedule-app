@@ -8,10 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Handles CRUD operations on teacher records and the initial setup of a
@@ -65,6 +62,17 @@ public class TeacherService {
     public Teacher getTeacherById(Long id) {
         return teacherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Öğretmen bulunamadı: " + id));
+    }
+
+    /**
+     * Looks up a teacher by id, returning an empty {@link Optional} instead of
+     * throwing when none exists. Use this where a missing teacher is an
+     * expected, recoverable case — such as rendering appointments that still
+     * reference a since-deleted teacher — and {@link #getTeacherById} where
+     * absence would be a programming error.
+     */
+    public Optional<Teacher> findTeacherById(Long id) {
+        return teacherRepository.findById(id);
     }
 
     /**

@@ -134,9 +134,11 @@ public class AppointmentController {
     }
 
     /**
-     * Builds the "Yaklaşan randevular" rows. Appointment only stores raw
-     * ids, so teacher/student names are resolved here for display instead
-     * of leaking id-lookups into the template.
+     * Builds the "Yaklaşan randevular" rows. {@link Appointment} only stores
+     * raw ids, so teacher/student names are resolved here for display. A
+     * teacher or student that was deleted while still referenced by an
+     * appointment resolves to a placeholder label rather than crashing the
+     * page, mirroring how a missing time slot is already handled.
      */
     private List<UpcomingAppointmentRow> buildUpcomingAppointmentRows() {
         return appointmentService.getAppointments().stream()
@@ -147,8 +149,12 @@ public class AppointmentController {
     }
 
     private UpcomingAppointmentRow toUpcomingRow(Appointment appointment) {
-        Teacher teacher = teacherService.getTeacherById(appointment.getTeacherId());
-        Student student = studentService.getStudentById(appointment.getStudentId());
+        String teacherName = teacherService.findTeacherById(appointment.getTeacherId())
+                .map(Teacher::getFullName)
+                .orElse("(silinmiş öğretmen)");
+        String studentName = studentService.findStudentById(appointment.getStudentId())
+                .map(Student::getFullName)
+                .orElse("(silinmiş öğrenci)");
         TimeSlot slot = timeSlotRepository.findById(appointment.getTimeSlotId()).orElse(null);
         String time = (slot != null)
                 ? slot.getStartTime() + " - " + slot.getEndTime()
@@ -157,8 +163,8 @@ public class AppointmentController {
                 appointment.getId(),
                 time,
                 appointment.getAppointmentDate(),
-                teacher.getFullName(),
-                student.getFullName());
+                teacherName,
+                studentName);
     }
 
     /**

@@ -15,8 +15,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -169,5 +168,25 @@ public class TeacherServiceTest {
 
         verify(teacherScheduleRepository).deleteAll(rows);
         verify(teacherRepository).deleteById(1L);
+    }
+
+    @Test
+    void findTeacherById_whenExists_returnsTeacher() {
+        Teacher teacher = new Teacher();
+        teacher.setFullName("Zeynep");
+        teacher.setBranch("Matematik");
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
+
+        Optional<Teacher> result = teacherService.findTeacherById(1L);
+
+        assertTrue(result.isPresent());
+        assertEquals("Zeynep", result.get().getFullName());
+    }
+
+    @Test
+    void findTeacherById_whenNotExists_returnsEmptyWithoutThrowing() {
+        when(teacherRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertTrue(teacherService.findTeacherById(1L).isEmpty());
     }
 }

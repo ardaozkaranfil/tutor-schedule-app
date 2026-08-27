@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Handles CRUD and search operations on student records.
@@ -36,6 +37,17 @@ public class StudentService {
     public Student getStudentById(Long id){
         return studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Öğrenci bulunamadı: " + id));
+    }
+
+    /**
+     * Looks up a student by id, returning an empty {@link Optional} instead of
+     * throwing when none exists. Use this where a missing student is an
+     * expected, recoverable case — such as rendering appointments that still
+     * reference a since-deleted student — and {@link #getStudentById} where
+     * absence would be a programming error.
+     */
+    public Optional<Student> findStudentById(Long id) {
+        return studentRepository.findById(id);
     }
 
     /**

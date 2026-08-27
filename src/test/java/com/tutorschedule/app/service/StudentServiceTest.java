@@ -10,9 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -126,5 +126,26 @@ public class StudentServiceTest {
         studentService.deleteStudent(id);
 
         verify(studentRepository).deleteById(id);
+    }
+
+    @Test
+    void findStudentById_whenExists_returnsStudent() {
+        Student student = new Student();
+        student.setId(1L);
+        student.setFullName("Arda");
+        student.setClassName("12-MF");
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+
+        Optional<Student> result = studentService.findStudentById(1L);
+
+        assertTrue(result.isPresent());
+        assertEquals("Arda", result.get().getFullName());
+    }
+
+    @Test
+    void findStudentById_whenNotExists_returnsEmptyWithoutThrowing() {
+        when(studentRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertTrue(studentService.findStudentById(1L).isEmpty());
     }
 }
