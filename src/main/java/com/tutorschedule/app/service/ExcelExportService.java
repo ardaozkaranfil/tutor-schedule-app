@@ -107,8 +107,8 @@ public class ExcelExportService {
             CellStyle busyStyle = createColoredStyle(workbook, IndexedColors.LIGHT_ORANGE);
             CellStyle blockedStyle = createColoredStyle(workbook, IndexedColors.GREY_25_PERCENT);
 
-            writeTableTitle(sheet, titleStyle, "Haftaiçi Programı", WEEKDAY_TABLE_START_COL, WEEKDAY_DAYS.length);
-            writeTableTitle(sheet, titleStyle, "Haftasonu Programı", WEEKEND_TABLE_START_COL, WEEKEND_DAYS.length);
+            writeTableTitle(sheet, titleStyle, "Hafta İçi Programı", WEEKDAY_TABLE_START_COL, WEEKDAY_DAYS.length);
+            writeTableTitle(sheet, titleStyle, "Hafta Sonu Programı", WEEKEND_TABLE_START_COL, WEEKEND_DAYS.length);
 
             writeTableHeader(sheet, headerStyle, WEEKDAY_TABLE_START_COL, WEEKDAY_DAYS);
             writeTableHeader(sheet, headerStyle, WEEKEND_TABLE_START_COL, WEEKEND_DAYS);

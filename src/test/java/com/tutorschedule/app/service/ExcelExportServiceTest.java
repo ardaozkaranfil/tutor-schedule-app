@@ -85,8 +85,8 @@ public class ExcelExportServiceTest {
 
             // Row 0: section titles
             Row titleRow = sheet.getRow(0);
-            assertEquals("Haftaiçi Programı", titleRow.getCell(0).getStringCellValue());
-            assertEquals("Haftasonu Programı", titleRow.getCell(7).getStringCellValue());
+            assertEquals("Hafta İçi Programı", titleRow.getCell(0).getStringCellValue());
+            assertEquals("Hafta Sonu Programı", titleRow.getCell(7).getStringCellValue());
 
             // Row 1: "Saat" + day-name headers for both tables
             Row header = sheet.getRow(1);

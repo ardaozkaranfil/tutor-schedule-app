@@ -11,7 +11,7 @@
 
     <div class="timeslot-columns">
         <div class="weekdaytimeslot-column">
-            <h2>Haftaiçi Saatleri</h2>
+            <h2>Hafta İçi Saatleri</h2>
             <div class="timeslot-row" th:each="slot : ${weekdaySlots}" th:attr="data-id=${slot.id}">
                 <span class="slot-display">
                     <span class="slot-time" th:text="${#temporals.format(slot.startTime,'HH:mm')}"></span>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="weekendtimeslot-column">
-            <h2>Haftasonu Saatleri</h2>
+            <h2>Hafta Sonu Saatleri</h2>
             <div class="timeslot-row" th:each="slot : ${weekendSlots}" th:attr="data-id=${slot.id}">
                 <span class="slot-display">
                     <span class="slot-time" th:text="${#temporals.format(slot.startTime,'HH:mm')}"></span>
@@ -64,7 +64,7 @@
                 <input type="hidden" name="dayType" value="WEEKEND">
                 <input type="time" name="startTime" required>
                 <input type="time" name="endTime" required>
-                <button type="submit" class="btn btn-primary">+ Yeni saat Ekle</button>
+                <button type="submit" class="btn btn-primary">+ Yeni saat ekle</button>
             </form>
         </div>
     </div>
