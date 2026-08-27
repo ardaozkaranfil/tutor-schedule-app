@@ -58,9 +58,13 @@
         </form>
     </aside>
 
-    <form th:action="@{/students/import}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".xlsx, .xls" required>
-        <button type="submit" class="btn">İçe Aktar</button>
+    <form class="import-form" th:action="@{/students/import}" method="post" enctype="multipart/form-data">
+        <h2>Excel'den İçe Aktar</h2>
+        <label class="file-drop">
+            <input type="file" id="importFile" name="file" accept=".xlsx, .xls" required>
+            <span id="importFileName">Dosya seçilmedi</span>
+        </label>
+        <button type="submit" class="btn btn-primary">İçe Aktar</button>
     </form>
     <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
     <p th:if="${importSummary}" th:text="${importSummary}"></p>

@@ -85,7 +85,7 @@ h2 {
     margin: 24px 0 12px;
 }
 
-.side-form h2 {
+.side-form h2, .import-form h2 {
     margin-top: 0;
 }
 
@@ -259,7 +259,7 @@ label {
     margin-top: 16px;
 }
 
-.side-form {
+.side-form, .import-form {
     background: #fff;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -384,5 +384,34 @@ section:has(.side-form) > form {
     min-width: 0;
 }
 section:has(.side-form) > form input[type="file"] {
+    width: 100%;
+}
+
+section:has(.side-form) > .import-form .file-drop {
+    display: block;
+    margin: 12px 0;
+    padding: 20px 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    background: #faf9f6;
+    text-align: center;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+section:has(.side-form) > .import-form .file-drop:hover {
+    background: #f2f1ec;
+    border-color: #d6d3c9;
+}
+section:has(.side-form) > .import-form .file-drop input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+section:has(.side-form) > .import-form .btn {
     width: 100%;
 }

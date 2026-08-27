@@ -102,6 +102,16 @@ document.addEventListener('DOMContentLoaded', function (){
 
     cancelBtn.addEventListener('click', exitEditMode);
 
+    const importFile = document.getElementById('importFile');
+    const importFileName = document.getElementById('importFileName');
+    if (importFile) {
+        importFile.addEventListener('change', () => {
+            importFileName.textContent = importFile.files.length
+                ? importFile.files[0].name
+                : 'Dosya seçilmedi';
+        });
+    }
+
     document.querySelectorAll('#studentTableBody .edit-link').forEach(f => {
         f.addEventListener('click', e => {
             e.preventDefault();
