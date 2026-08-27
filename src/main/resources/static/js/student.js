@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function (){
         importFile.addEventListener('change', () => {
             importFileName.textContent = importFile.files.length
                 ? importFile.files[0].name
-                : 'Dosya seçilmedi';
+                : 'Buradan dosya seçiniz';
         });
     }
 

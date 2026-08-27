@@ -59,13 +59,15 @@
                         <input type="text" class="student-search" placeholder="Öğrenci ara..." autocomplete="off">
                         <input type="hidden" name="studentId">
                         <div class="student-suggestions"></div>
-                        <button type="submit">Kaydet</button>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
 
     <div class="upcoming-section">
         <h2>Yaklaşan Randevular</h2>
@@ -96,8 +98,6 @@
             </tbody>
         </table>
     </div>
-
-    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
 
     <script th:src="@{/js/appointment.js}"></script>
 </section>

@@ -337,6 +337,11 @@ label {
     min-width: 160px;
 }
 
+.cell-booking-form .btn {
+    width: 100%;
+    text-align: center;
+}
+
 .student-suggestions {
     max-height: 180px;
     overflow-y: auto;
