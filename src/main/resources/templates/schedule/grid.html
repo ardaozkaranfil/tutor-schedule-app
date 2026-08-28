@@ -86,32 +86,35 @@
                     </span>
 
                     <form class="cell-edit-form" method="post" th:action="@{/schedule/update}" style="display:none">
-                    <input type="hidden" name="teacherId" th:value="${selectedTeacher.id}">
-                    <input type="hidden" name="dayOfWeek" th:value="${day}">
-                    <input type="hidden" name="timeSlotId" th:value="${slot.id}">
+                        <input type="hidden" name="teacherId" th:value="${selectedTeacher.id}">
+                        <input type="hidden" name="dayOfWeek" th:value="${day}">
+                        <input type="hidden" name="timeSlotId" th:value="${slot.id}">
 
-                    <select name="status">
-                        <option value="FREE" th:selected="${cell?.status?.name() == 'FREE'}">Boş</option>
-                        <option value="BUSY" th:selected="${cell?.status?.name() == 'BUSY'}">Meşgul</option>
-                        <option value="BLOCKED" th:selected="${cell?.status?.name() == 'BLOCKED'}">Bloklu</option>
-                    </select>
+                        <select name="status">
+                            <option value="FREE" th:selected="${cell?.status?.name() == 'FREE'}">Boş</option>
+                            <option value="BUSY" th:selected="${cell?.status?.name() == 'BUSY'}">Meşgul</option>
+                            <option value="BLOCKED" th:selected="${cell?.status?.name() == 'BLOCKED'}">Bloklu</option>
+                        </select>
 
-                    <input type="text" name="className" placeholder="Sınıf"
-                           th:value="${cell?.className}">
+                        <input type="text" name="className" placeholder="Sınıf"
+                               th:value="${cell?.className}">
 
-                    <button type="submit">Kaydet</button>
+                        <button type="submit">Kaydet</button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
-
-    <a th:if="${selectedTeacher != null}"
-       th:href="@{/schedule/export/{id}(id=${selectedTeacher.id})}"
-       class="btn btn-primary">
-        Excel'e Aktar
-    </a>
+    <form th:if="${selectedTeacher != null}"
+          class="export-bar"
+          method="get"
+          th:action="@{/schedule/export/{id}(id=${selectedTeacher.id})}">
+        <label for="exportWeekDate">Randevuların haftası:</label>
+        <input type="date" id="exportWeekDate" name="date"
+               th:value="${#temporals.format(#temporals.createToday(),'yyyy-MM-dd')}">
+        <button type="submit" class="btn btn-primary">Excel'e Aktar</button>
+    </form>
 
     <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
 

@@ -8,6 +8,7 @@ import com.tutorschedule.app.repository.TimeSlotRepository;
 import com.tutorschedule.app.service.ExcelExportService;
 import com.tutorschedule.app.service.ScheduleService;
 import com.tutorschedule.app.service.TeacherService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -103,13 +105,27 @@ public class ScheduleController {
 
     /**
      * Downloads the selected teacher's weekly schedule as an .xlsx file.
-     * File name is "<TeacherName>_<yyyy-MM-dd>.xlsx".
+     * <p>
+     * The file contains the recurring free/busy/blocked template plus the
+     * one-on-one appointments booked for a single calendar week. That week
+     * is the Monday–Sunday range containing {@code date}; when {@code date}
+     * is omitted the current week is used. The date only selects which
+     * appointments are pulled in — the template grid itself is not
+     * date-specific.
+     * <p>
+     * File name is "&lt;TeacherName&gt;_&lt;WeekMonday-yyyy-MM-dd&gt;_haftasi.xlsx",
+     * so it reflects the exported week rather than the download date.
      */
     @GetMapping("/export/{teacherId}")
     @ResponseBody
-    public ResponseEntity<byte[]> exportSchedule(@PathVariable Long teacherId) {
-        byte[] excelBytes = excelExportService.exportTeacherSchedule(teacherId);
-        String baseName = excelExportService.buildExportFileBaseName(teacherId);
+    public ResponseEntity<byte[]> exportSchedule(
+            @PathVariable Long teacherId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+
+        LocalDate weekReference = (date != null) ? date : LocalDate.now();
+
+        byte[] excelBytes = excelExportService.exportTeacherSchedule(teacherId, weekReference);
+        String baseName = excelExportService.buildExportFileBaseName(teacherId, weekReference);
         String fileName = baseName + ".xlsx";
         String asciiFileName = excelExportService.toAsciiFallback(fileName);
         String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");

@@ -1,10 +1,15 @@
 package com.tutorschedule.app.service;
 
+import com.tutorschedule.app.entity.Appointment;
+import com.tutorschedule.app.entity.AppointmentStatus;
+import com.tutorschedule.app.entity.Student;
 import com.tutorschedule.app.entity.Teacher;
 import com.tutorschedule.app.entity.TeacherSchedule;
 import com.tutorschedule.app.entity.TeacherScheduleStatus;
 import com.tutorschedule.app.entity.TimeSlot;
 import com.tutorschedule.app.entity.TimeSlotDayType;
+import com.tutorschedule.app.repository.AppointmentRepository;
+import com.tutorschedule.app.repository.StudentRepository;
 import com.tutorschedule.app.repository.TeacherRepository;
 import com.tutorschedule.app.repository.TimeSlotRepository;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,11 +35,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ExcelExportServiceTest {
+
+    private static final LocalDate WEEK_MONDAY = LocalDate.of(2026, 8, 24);
 
     @Mock
     private TeacherRepository teacherRepository;
@@ -44,6 +54,12 @@ public class ExcelExportServiceTest {
     @Mock
     private TimeSlotRepository timeSlotRepository;
 
+    @Mock
+    private AppointmentRepository appointmentRepository;
+
+    @Mock
+    private StudentRepository studentRepository;
+
     @InjectMocks
     private ExcelExportService excelExportService;
 
@@ -53,7 +69,7 @@ public class ExcelExportServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> excelExportService.exportTeacherSchedule(1L)
+                () -> excelExportService.exportTeacherSchedule(1L, WEEK_MONDAY)
         );
     }
 
@@ -78,7 +94,12 @@ public class ExcelExportServiceTest {
         when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND))
                 .thenReturn(List.of());
 
-        byte[] bytes = excelExportService.exportTeacherSchedule(1L);
+        when(appointmentRepository.findByTeacherIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.ACTIVE), any(), any()))
+                .thenReturn(List.of());
+        when(studentRepository.findAllById(any())).thenReturn(List.of());
+
+        byte[] bytes = excelExportService.exportTeacherSchedule(1L, WEEK_MONDAY);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -129,7 +150,12 @@ public class ExcelExportServiceTest {
         when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND))
                 .thenReturn(List.of(weekendSlot));
 
-        byte[] bytes = excelExportService.exportTeacherSchedule(1L);
+        when(appointmentRepository.findByTeacherIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.ACTIVE), any(), any()))
+                .thenReturn(List.of());
+        when(studentRepository.findAllById(any())).thenReturn(List.of());
+
+        byte[] bytes = excelExportService.exportTeacherSchedule(1L, WEEK_MONDAY);
 
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -150,5 +176,77 @@ public class ExcelExportServiceTest {
             assertNull(secondDataRow.getCell(8));
             assertNull(secondDataRow.getCell(9));
         }
+    }
+
+    @Test
+    void exportTeacherSchedule_showsWeeklyAppointmentInGridCell() throws IOException {
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(mock(Teacher.class)));
+
+        TimeSlot weekdaySlot = new TimeSlot(TimeSlotDayType.WEEKDAY, LocalTime.of(9, 0), LocalTime.of(9, 40));
+        weekdaySlot.setId(10L);
+
+        Map<DayOfWeek, List<TeacherSchedule>> weeklySchedule = new LinkedHashMap<>();
+        weeklySchedule.put(DayOfWeek.MONDAY, List.of(
+                new TeacherSchedule(1L, 10L, null, DayOfWeek.MONDAY, TeacherScheduleStatus.FREE)));
+        weeklySchedule.put(DayOfWeek.TUESDAY, List.of(
+                new TeacherSchedule(1L, 10L, "12-MF", DayOfWeek.TUESDAY, TeacherScheduleStatus.BUSY)));
+
+        when(scheduleService.getWeeklySchedule(1L)).thenReturn(weeklySchedule);
+        when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY))
+                .thenReturn(List.of(weekdaySlot));
+        when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND))
+                .thenReturn(List.of());
+
+        Appointment appt = new Appointment(1L, 10L, 99L, WEEK_MONDAY, AppointmentStatus.ACTIVE);
+        when(appointmentRepository.findByTeacherIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.ACTIVE), any(), any()))
+                .thenReturn(List.of(appt));
+        when(studentRepository.findAllById(any()))
+                .thenReturn(List.of(new Student(99L, "12-A", "Ali Veli")));
+
+        byte[] bytes = excelExportService.exportTeacherSchedule(1L, WEEK_MONDAY);
+
+        try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
+            Row dataRow = workbook.getSheetAt(0).getRow(2);
+            assertEquals("Randevu: Ali Veli", dataRow.getCell(1).getStringCellValue());
+            assertEquals("12-MF", dataRow.getCell(2).getStringCellValue());
+        }
+    }
+
+    @Test
+    void exportTeacherSchedule_whenAppointmentStudentDeleted_showsPlaceholder() throws IOException {
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(mock(Teacher.class)));
+
+        TimeSlot weekdaySlot = new TimeSlot(TimeSlotDayType.WEEKDAY, LocalTime.of(9, 0), LocalTime.of(9, 40));
+        weekdaySlot.setId(10L);
+
+        when(scheduleService.getWeeklySchedule(1L)).thenReturn(Map.of());
+        when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY))
+                .thenReturn(List.of(weekdaySlot));
+        when(timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND))
+                .thenReturn(List.of());
+
+        when(appointmentRepository.findByTeacherIdAndStatusAndAppointmentDateBetween(
+                eq(1L), eq(AppointmentStatus.ACTIVE), any(), any()))
+                .thenReturn(List.of(new Appointment(1L, 10L, 99L, WEEK_MONDAY, AppointmentStatus.ACTIVE)));
+        when(studentRepository.findAllById(any())).thenReturn(List.of());
+
+        byte[] bytes = excelExportService.exportTeacherSchedule(1L, WEEK_MONDAY);
+
+        try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
+            Row dataRow = workbook.getSheetAt(0).getRow(2);
+            assertEquals("Randevu: (silinmiş öğrenci)", dataRow.getCell(1).getStringCellValue());
+        }
+    }
+
+    @Test
+    void buildExportFileBaseName_usesMondayOfExportedWeek() {
+        Teacher teacher = mock(Teacher.class);
+        when(teacher.getFullName()).thenReturn("Ahmet Yılmaz");
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
+
+        String base = excelExportService.buildExportFileBaseName(1L, LocalDate.of(2026, 8, 28));
+
+        assertEquals("Ahmet_Yılmaz_2026-08-24_haftasi", base);
     }
 }

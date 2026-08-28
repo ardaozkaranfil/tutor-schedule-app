@@ -45,7 +45,7 @@ Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-
 - Student records are imported from an Excel file (name, course number, class), and classes are created automatically from that data.
 - One-on-one appointments are booked against a real calendar date, checked against the teacher's weekly grid, with conflict prevention — no double-booking the same slot.
 - Appointments can be cancelled.
-- Weekly and daily teacher schedules can be exported to Excel in a printable layout.
+- Weekly and daily teacher schedules can be exported to Excel in a printable layout. The weekly export also overlays that calendar week's one-on-one appointments onto the grid (student name in the booked slot) and appends a summary table of the week's appointments (date, day, time, student, class).
 - Teachers and students can be added in bulk.
 - Database backups are taken automatically (on app startup and whenever a schedule is saved) and can be restored from a saved dump.
 - Class groups can be created on the fly from the student add/edit form, not just via Excel import.

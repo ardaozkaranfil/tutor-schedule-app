@@ -27,4 +27,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
      */
     List<Appointment> findByStatusAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAsc(
             AppointmentStatus status, LocalDate date);
+
+    /**
+     * Returns a teacher's ACTIVE appointments whose date falls within the given
+     * range (both ends inclusive). Used by the Excel export to overlay that
+     * week's bookings onto the schedule grid.
+     */
+    List<Appointment> findByTeacherIdAndStatusAndAppointmentDateBetween(
+            Long teacherId, AppointmentStatus status, LocalDate startInclusive, LocalDate endInclusive);
 }

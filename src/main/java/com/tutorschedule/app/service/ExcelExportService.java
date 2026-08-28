@@ -1,9 +1,14 @@
 package com.tutorschedule.app.service;
 
+import com.tutorschedule.app.entity.Appointment;
+import com.tutorschedule.app.entity.AppointmentStatus;
+import com.tutorschedule.app.entity.Student;
 import com.tutorschedule.app.entity.Teacher;
 import com.tutorschedule.app.entity.TeacherSchedule;
 import com.tutorschedule.app.entity.TimeSlot;
 import com.tutorschedule.app.entity.TimeSlotDayType;
+import com.tutorschedule.app.repository.AppointmentRepository;
+import com.tutorschedule.app.repository.StudentRepository;
 import com.tutorschedule.app.repository.TeacherRepository;
 import com.tutorschedule.app.repository.TimeSlotRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -21,18 +26,33 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Produces a color-coded Excel (.xlsx) file of a teacher's weekly
  * schedule. FREE is green, BUSY is orange (with the class name shown),
- * BLOCKED is grey. Weekday and weekend schedules are rendered as two
- * separate, independent tables side by side (since their time slots
- * can differ), with one blank column between them.
+ * BLOCKED is grey, and a slot that has a one-on-one appointment booked
+ * for the exported week is blue (with the student's name shown).
+ * <p>
+ * Weekday and weekend schedules are rendered as two separate, independent
+ * tables side by side (since their time slots can differ), with one blank
+ * column between them. Below those two tables a summary table lists every
+ * appointment booked for the exported week (date, day, time, student,
+ * class), sorted by date and start time.
+ * <p>
+ * The weekly template is keyed by day-of-week only, whereas appointments
+ * carry a real date; the export therefore resolves a concrete week
+ * (Monday–Sunday) from the caller-supplied reference date and only pulls
+ * appointments that fall inside it.
  */
 @Service
 public class ExcelExportService {
@@ -66,22 +86,35 @@ public class ExcelExportService {
     private final TeacherRepository teacherRepository;
     private final ScheduleService scheduleService;
     private final TimeSlotRepository timeSlotRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final StudentRepository studentRepository;
 
     public ExcelExportService(TeacherRepository teacherRepository,
                               ScheduleService scheduleService,
-                              TimeSlotRepository timeSlotRepository) {
+                              TimeSlotRepository timeSlotRepository,
+                              AppointmentRepository appointmentRepository,
+                              StudentRepository studentRepository) {
         this.teacherRepository = teacherRepository;
         this.scheduleService = scheduleService;
         this.timeSlotRepository = timeSlotRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.studentRepository = studentRepository;
     }
 
     /**
      * Builds the teacher's weekly schedule into a single-sheet Excel file
-     * with two side-by-side tables (weekday and weekend, since their time
-     * slots can differ) and returns it as a byte array. Throws
-     * IllegalArgumentException if the teacher doesn't exist.
+     * and returns it as a byte array. The sheet holds two side-by-side
+     * tables (weekday and weekend, since their time slots can differ),
+     * each cell marked FREE/BUSY/BLOCKED, plus any slot that has an active
+     * appointment during the resolved week overridden with the student's
+     * name. A summary table of that week's appointments is appended below.
+     *
+     * @param teacherId     the teacher whose schedule is exported
+     * @param weekReference any date inside the week to export; the actual
+     *                      window is the Monday–Sunday containing it
+     * @throws IllegalArgumentException if the teacher doesn't exist
      */
-    public byte[] exportTeacherSchedule(Long teacherId) {
+    public byte[] exportTeacherSchedule(Long teacherId, LocalDate weekReference) {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Öğretmen bulunamadı: " + teacherId));
 
@@ -98,6 +131,17 @@ public class ExcelExportService {
         List<TimeSlot> weekdaySlots = timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKDAY);
         List<TimeSlot> weekendSlots = timeSlotRepository.findByDayTypeOrderByStartTimeAsc(TimeSlotDayType.WEEKEND);
 
+        LocalDate weekStart = weekReference.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate weekEnd = weekStart.plusDays(6);
+
+        List<Appointment> weekAppointments = appointmentRepository
+                .findByTeacherIdAndStatusAndAppointmentDateBetween(
+                        teacherId, AppointmentStatus.ACTIVE, weekStart, weekEnd);
+
+        Map<DayOfWeek, Map<Long, Appointment>> apptByDayAndSlot = indexAppointmentsByDayAndSlot(weekAppointments);
+        Map<Long, String> studentNames = loadStudentNames(weekAppointments);
+        Map<Long, TimeSlot> slotById = indexSlotsById(weekdaySlots, weekendSlots);
+
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Haftalık Program");
 
@@ -106,6 +150,7 @@ public class ExcelExportService {
             CellStyle freeStyle = createColoredStyle(workbook, IndexedColors.LIGHT_GREEN);
             CellStyle busyStyle = createColoredStyle(workbook, IndexedColors.LIGHT_ORANGE);
             CellStyle blockedStyle = createColoredStyle(workbook, IndexedColors.GREY_25_PERCENT);
+            CellStyle appointmentStyle = createColoredStyle(workbook, IndexedColors.PALE_BLUE);
 
             writeTableTitle(sheet, titleStyle, "Hafta İçi Programı", WEEKDAY_TABLE_START_COL, WEEKDAY_DAYS.length);
             writeTableTitle(sheet, titleStyle, "Hafta Sonu Programı", WEEKEND_TABLE_START_COL, WEEKEND_DAYS.length);
@@ -114,9 +159,15 @@ public class ExcelExportService {
             writeTableHeader(sheet, headerStyle, WEEKEND_TABLE_START_COL, WEEKEND_DAYS);
 
             writeTableBody(sheet, WEEKDAY_TABLE_START_COL, WEEKDAY_DAYS, weekdaySlots, byDayAndSlot,
-                    freeStyle, busyStyle, blockedStyle);
+                    apptByDayAndSlot, studentNames,
+                    freeStyle, busyStyle, blockedStyle, appointmentStyle);
             writeTableBody(sheet, WEEKEND_TABLE_START_COL, WEEKEND_DAYS, weekendSlots, byDayAndSlot,
-                    freeStyle, busyStyle, blockedStyle);
+                    apptByDayAndSlot, studentNames,
+                    freeStyle, busyStyle, blockedStyle, appointmentStyle);
+
+            int gridBodyRows = Math.max(weekdaySlots.size(), weekendSlots.size());
+            writeAppointmentSummary(sheet, gridBodyRows + 3, titleStyle, headerStyle,
+                    weekStart, weekEnd, weekAppointments, slotById);
 
             int lastCol = WEEKEND_TABLE_START_COL + WEEKEND_DAYS.length;
             for (int col = 0; col <= lastCol; col++) {
@@ -132,16 +183,18 @@ public class ExcelExportService {
     }
 
     /**
-     * Returns a filesystem-safe "TeacherName_yyyy-MM-dd" base for the
-     * export file name (no extension), used by the controller to build
-     * the Content-Disposition header.
+     * Returns a filesystem-safe "TeacherName_yyyy-MM-dd_haftasi" base for the
+     * export file name (no extension). The date is the Monday of the exported
+     * week (resolved from {@code weekReference}), so the file name matches the
+     * appointments actually inside the sheet rather than "today".
      */
-    public String buildExportFileBaseName(Long teacherId) {
+    public String buildExportFileBaseName(Long teacherId, LocalDate weekReference) {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Öğretmen bulunamadı: " + teacherId));
         String safeName = teacher.getFullName().trim().replaceAll("\\s+", "_");
-        String date = java.time.LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-        return safeName + "_" + date;
+        LocalDate weekStart = weekReference.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        String week = weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        return safeName + "_" + week + "_haftasi";
     }
 
     /**
@@ -160,7 +213,53 @@ public class ExcelExportService {
     }
 
     /**
-     * Writes a merged title cell ("Haftaiçi Programı" / "Haftasonu
+     * Groups the week's appointments into day-of-week -> (timeSlotId ->
+     * appointment). Within a single week a given day/slot pair maps to at
+     * most one active appointment, so a plain map value is enough.
+     */
+    private Map<DayOfWeek, Map<Long, Appointment>> indexAppointmentsByDayAndSlot(List<Appointment> appointments) {
+        Map<DayOfWeek, Map<Long, Appointment>> byDayAndSlot = new EnumMap<>(DayOfWeek.class);
+        for (Appointment appointment : appointments) {
+            byDayAndSlot
+                    .computeIfAbsent(appointment.getAppointmentDate().getDayOfWeek(), day -> new HashMap<>())
+                    .put(appointment.getTimeSlotId(), appointment);
+        }
+        return byDayAndSlot;
+    }
+
+    /**
+     * Resolves the display name of every student referenced by the week's
+     * appointments in a single query, returning studentId -> full name. A
+     * student that was deleted while still referenced simply won't appear
+     * in the map; callers fall back to a placeholder label.
+     */
+    private Map<Long, String> loadStudentNames(List<Appointment> appointments) {
+        List<Long> studentIds = appointments.stream()
+                .map(Appointment::getStudentId)
+                .distinct()
+                .toList();
+        return studentRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(Student::getId, Student::getFullName));
+    }
+
+    /**
+     * Indexes the already-loaded weekday and weekend slots by id so the
+     * appointment summary can print each appointment's time range without
+     * extra per-row lookups.
+     */
+    private Map<Long, TimeSlot> indexSlotsById(List<TimeSlot> weekdaySlots, List<TimeSlot> weekendSlots) {
+        Map<Long, TimeSlot> slotById = new HashMap<>();
+        for (TimeSlot slot : weekdaySlots) {
+            slotById.put(slot.getId(), slot);
+        }
+        for (TimeSlot slot : weekendSlots) {
+            slotById.put(slot.getId(), slot);
+        }
+        return slotById;
+    }
+
+    /**
+     * Writes a merged title cell ("Hafta İçi Programı" / "Hafta Sonu
      * Programı") spanning the "Saat" column plus one column per day.
      */
     private void writeTableTitle(Sheet sheet, CellStyle titleStyle, String title, int startCol, int dayCount) {
@@ -198,10 +297,18 @@ public class ExcelExportService {
      * Writes the data rows (starting at row index 2) for one table, using
      * only that table's own time slots — weekday and weekend row counts
      * are independent of each other.
+     * <p>
+     * Cell precedence per day/slot: an active appointment for the exported
+     * week wins and shows "Randevu: &lt;student&gt;" in blue; otherwise the
+     * weekly template's FREE/BUSY/BLOCKED value is shown; a slot with
+     * neither renders "-".
      */
     private void writeTableBody(Sheet sheet, int startCol, DayOfWeek[] days, List<TimeSlot> slots,
                                 Map<DayOfWeek, Map<Long, TeacherSchedule>> byDayAndSlot,
-                                CellStyle freeStyle, CellStyle busyStyle, CellStyle blockedStyle) {
+                                Map<DayOfWeek, Map<Long, Appointment>> apptByDayAndSlot,
+                                Map<Long, String> studentNames,
+                                CellStyle freeStyle, CellStyle busyStyle, CellStyle blockedStyle,
+                                CellStyle appointmentStyle) {
         for (int rowIdx = 0; rowIdx < slots.size(); rowIdx++) {
             Row row = sheet.getRow(rowIdx + 2);
             if (row == null) {
@@ -213,6 +320,16 @@ public class ExcelExportService {
             for (int col = 0; col < days.length; col++) {
                 DayOfWeek day = days[col];
                 Cell cell = row.createCell(startCol + col + 1);
+
+                Appointment appointment = apptByDayAndSlot.getOrDefault(day, Map.of()).get(slot.getId());
+                if (appointment != null) {
+                    String studentName = studentNames.getOrDefault(
+                            appointment.getStudentId(), "(silinmiş öğrenci)");
+                    cell.setCellValue("Randevu: " + studentName);
+                    cell.setCellStyle(appointmentStyle);
+                    continue;
+                }
+
                 TeacherSchedule entry = byDayAndSlot.getOrDefault(day, Map.of()).get(slot.getId());
 
                 if (entry == null) {
@@ -239,6 +356,63 @@ public class ExcelExportService {
     }
 
     /**
+     * Appends the "Bu Haftanın Randevuları" section: a title row spanning
+     * the exported week, a header row (Tarih / Gün / Saat / Öğrenci /
+     * Sınıf), and one row per active appointment sorted by date then start
+     * time. A deleted student or an unknown time slot degrades to a
+     * placeholder rather than failing the export.
+     *
+     * @param startRow first row index this section may use (already past
+     *                 the two grids, with one blank row of separation)
+     */
+    private void writeAppointmentSummary(Sheet sheet, int startRow,
+                                         CellStyle titleStyle, CellStyle headerStyle,
+                                         LocalDate weekStart, LocalDate weekEnd,
+                                         List<Appointment> appointments,
+                                         Map<Long, TimeSlot> slotById) {
+        Row titleRow = sheet.createRow(startRow);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Bu Haftanın Randevuları (" + weekStart + " – " + weekEnd + ")");
+        titleCell.setCellStyle(titleStyle);
+
+        Row headerRow = sheet.createRow(startRow + 1);
+        String[] columns = {"Tarih", "Gün", "Saat", "Öğrenci", "Sınıf"};
+        for (int col = 0; col < columns.length; col++) {
+            Cell cell = headerRow.createCell(col);
+            cell.setCellValue(columns[col]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        List<Appointment> sorted = appointments.stream()
+                .sorted(Comparator
+                        .comparing(Appointment::getAppointmentDate)
+                        .thenComparing(appointment -> slotStartTime(appointment, slotById)))
+                .toList();
+
+        int rowIdx = startRow + 2;
+        for (Appointment appointment : sorted) {
+            Student student = studentRepository.findById(appointment.getStudentId()).orElse(null);
+            TimeSlot slot = slotById.get(appointment.getTimeSlotId());
+
+            Row row = sheet.createRow(rowIdx++);
+            row.createCell(0).setCellValue(appointment.getAppointmentDate().toString());
+            row.createCell(1).setCellValue(DAY_NAMES.get(appointment.getAppointmentDate().getDayOfWeek()));
+            row.createCell(2).setCellValue(slot != null ? formatTimeRange(slot) : "");
+            row.createCell(3).setCellValue(student != null ? student.getFullName() : "(silinmiş öğrenci)");
+            row.createCell(4).setCellValue(student != null ? student.getClassName() : "");
+        }
+    }
+
+    /**
+     * Start time of an appointment's slot, or {@link LocalTime#MIN} when
+     * the slot can't be resolved, so summary sorting stays total.
+     */
+    private LocalTime slotStartTime(Appointment appointment, Map<Long, TimeSlot> slotById) {
+        TimeSlot slot = slotById.get(appointment.getTimeSlotId());
+        return slot != null ? slot.getStartTime() : LocalTime.MIN;
+    }
+
+    /**
      * Formats a time slot as "14:00-14:40".
      */
     private String formatTimeRange(TimeSlot slot) {
@@ -246,8 +420,8 @@ public class ExcelExportService {
     }
 
     /**
-     * Builds a bold, larger-font cell style used for the "Haftaiçi
-     * Programı" / "Haftasonu Programı" section titles.
+     * Builds a bold, larger-font cell style used for the "Hafta İçi
+     * Programı" / "Hafta Sonu Programı" section titles.
      */
     private CellStyle createTitleStyle(Workbook workbook) {
         Font boldFont = workbook.createFont();
@@ -271,7 +445,7 @@ public class ExcelExportService {
 
     /**
      * Builds a solid-fill cell style in the given color; used to visually
-     * tell FREE/BUSY/BLOCKED apart.
+     * tell FREE/BUSY/BLOCKED/appointment cells apart.
      */
     private CellStyle createColoredStyle(Workbook workbook, IndexedColors color) {
         CellStyle style = workbook.createCellStyle();
