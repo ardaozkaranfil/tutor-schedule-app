@@ -35,4 +35,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
      */
     List<Appointment> findByTeacherIdAndStatusAndAppointmentDateBetween(
             Long teacherId, AppointmentStatus status, LocalDate startInclusive, LocalDate endInclusive);
+
+    /**
+     * Returns every appointment ever booked for a student — ACTIVE and
+     * CANCELLED alike — newest first. Used by the "Geçmiş randevular" view,
+     * where cancelled bookings get a badge instead of being hidden.
+     */
+    List<Appointment> findByStudentIdOrderByAppointmentDateDesc(Long studentId);
+
+    /**
+     * Same as above but for a teacher. Feeds the teacher mode of the
+     * "Geçmiş randevular" view.
+     */
+    List<Appointment> findByTeacherIdOrderByAppointmentDateDesc(Long teacherId);
 }

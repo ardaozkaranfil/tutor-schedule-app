@@ -1,11 +1,6 @@
 package com.tutorschedule.app.controller;
 
-import com.tutorschedule.app.entity.Appointment;
-import com.tutorschedule.app.entity.Student;
-import com.tutorschedule.app.entity.Teacher;
-import com.tutorschedule.app.entity.TeacherScheduleStatus;
-import com.tutorschedule.app.entity.TimeSlot;
-import com.tutorschedule.app.entity.TimeSlotDayType;
+import com.tutorschedule.app.entity.*;
 import com.tutorschedule.app.repository.TimeSlotRepository;
 import com.tutorschedule.app.service.AppointmentService;
 import com.tutorschedule.app.service.ScheduleAvailabilityService;
@@ -134,6 +129,38 @@ public class AppointmentController {
     }
 
     /**
+     * JSON feed for the "Geçmiş randevular" panel. Exactly one of
+     * studentId / teacherId is expected. studentId -> that student's whole
+     * booking history (teacher + branch per row); teacherId -> that
+     * teacher's history (student + class per row). Cancelled bookings are
+     * included so the panel can badge them; the summary counts them too.
+     */
+    @GetMapping("/history")
+    @ResponseBody
+    public HistoryView history(@RequestParam(required = false) Long studentId,
+                               @RequestParam(required = false) Long teacherId) {
+
+        List<Appointment> appointments;
+        if (studentId != null) {
+            appointments = appointmentService.getStudentHistory(studentId);
+        } else if (teacherId != null) {
+            appointments = appointmentService.getTeacherHistory(teacherId);
+        } else {
+            appointments = List.of();
+        }
+
+        long cancelled = appointments.stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.CANCELLED)
+                .count();
+
+        List<HistoryRow> rows = appointments.stream()
+                .map(this::toHistoryRow)
+                .toList();
+
+        return new HistoryView(appointments.size(), cancelled, rows);
+    }
+
+    /**
      * Builds the "Yaklaşan randevular" rows. {@link Appointment} only stores
      * raw ids, so teacher/student names are resolved here for display. A
      * teacher or student that was deleted while still referenced by an
@@ -168,9 +195,58 @@ public class AppointmentController {
     }
 
     /**
+     * Resolves one appointment's raw ids into display values for the
+     * "Geçmiş randevular" table. A since-deleted teacher/student or a
+     * missing time slot degrades to a placeholder instead of crashing —
+     * same approach as toUpcomingRow.
+     */
+    private HistoryRow toHistoryRow(Appointment appointment) {
+        Teacher teacher = teacherService.findTeacherById(appointment.getTeacherId()).orElse(null);
+        Student student = studentService.findStudentById(appointment.getStudentId()).orElse(null);
+        TimeSlot slot = timeSlotRepository.findById(appointment.getTimeSlotId()).orElse(null);
+
+        String teacherName = (teacher != null) ? teacher.getFullName() : "(silinmiş öğretmen)";
+        String branch = (teacher != null && teacher.getBranch() != null) ? teacher.getBranch() : "—";
+        String studentName = (student != null) ? student.getFullName() : "(silinmiş öğrenci)";
+        String className = (student != null) ? student.getClassName() : "—";
+        String time = (slot != null) ? slot.getStartTime() + " - " + slot.getEndTime() : "";
+
+        return new HistoryRow(
+                appointment.getAppointmentDate(),
+                time,
+                teacherName,
+                branch,
+                studentName,
+                className,
+                appointment.getStatus().name());
+    }
+
+    /**
      * Display-only row for the upcoming appointments table — keeps the
      * template from having to call back into services for names.
      */
     private record UpcomingAppointmentRow(Long id, String time, LocalDate date, String teacherName, String studentName) {
+    }
+
+    /**
+     * One row of the "Geçmiş randevular" table. Student mode uses the
+     * teacherName/branch columns; teacher mode uses studentName/className.
+     * The status string ("ACTIVE"/"CANCELLED") drives the badge on the page.
+     */
+    private record HistoryRow(
+            LocalDate date,
+            String time,
+            String teacherName,
+            String branch,
+            String studentName,
+            String className,
+            String status) {
+    }
+
+    /**
+     * Full JSON payload for the /history endpoint: a summary (how many
+     * bookings in total, how many of them cancelled) plus the rows.
+     */
+    private record HistoryView(long total, long cancelled, List<HistoryRow> rows) {
     }
 }

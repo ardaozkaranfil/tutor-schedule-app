@@ -42,6 +42,27 @@ public class AppointmentService {
                 LocalDate.now());
     }
 
+
+    /**
+     * All of a student's appointments — past and future, active and
+     * cancelled — newest first. No filtering here on purpose: the
+     * "Geçmiş randevular" view wants the full history so it can show a
+     * total and flag cancellations.
+     */
+    public List<Appointment> getStudentHistory(Long studentId) {
+        return appointmentRepository.findByStudentIdOrderByAppointmentDateDesc(studentId);
+    }
+
+    /**
+     * All of a teacher's appointments — past and future, active and
+     * cancelled — newest first. No filtering here on purpose: the
+     * "Geçmiş randevular" view wants the full history so it can show a
+     * total and flag cancellations.
+     */
+    public List<Appointment> getTeacherHistory(Long teacherId) {
+        return appointmentRepository.findByTeacherIdOrderByAppointmentDateDesc(teacherId);
+    }
+
     /**
      * Books a new appointment. Checks that the teacher and student exist and
      * that the slot is actually available on that date; throws
