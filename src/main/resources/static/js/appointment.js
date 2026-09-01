@@ -132,6 +132,139 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabPanels = {
+        upcoming: document.getElementById("upcomingTab"),
+        history: document.getElementById("historyTab"),
+    };
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            tabButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            Object.values(tabPanels).forEach(p => p.style.display = "none");
+            tabPanels[btn.dataset.tab].style.display = "";
+        });
+    });
+
+    const historyMode = document.getElementById("historyMode");
+    const studentPicker = document.getElementById("historyStudentPicker");
+    const teacherPicker = document.getElementById("historyTeacherPicker");
+    const historyStudentSearch = document.getElementById("historyStudentSearch");
+    const historyStudentId = document.getElementById("historyStudentId");
+    const historyStudentSuggestions = document.getElementById("historyStudentSuggestions");
+    const historySummary = document.getElementById("historySummary");
+    const historyTable = document.getElementById("historyTable");
+    const historyHead = document.getElementById("historyHead");
+    const historyBody = document.getElementById("historyBody");
+
+    function clearHistory() {
+        historySummary.textContent = "";
+        historyHead.innerHTML = "";
+        historyBody.innerHTML = "";
+        historyTable.style.display = "none";
+    }
+
+    // "2026-08-31" -> "31.08.2026"
+    function formatDate(iso) {
+        const [y, m, d] = iso.split("-");
+        return d + "." + m + "." + y;
+    }
+
+    historyMode.addEventListener("change", () => {
+        clearHistory();
+        const isStudent = historyMode.value === "student";
+        studentPicker.style.display = isStudent ? "" : "none";
+        teacherPicker.style.display = isStudent ? "none" : "";
+        teacherPicker.value = "";
+        historyStudentSearch.value = "";
+        historyStudentId.value = "";
+    });
+
+    function renderHistory(mode, data) {
+        if (!data.rows.length) {
+            historySummary.textContent = "Kayıt bulunamadı.";
+            historyHead.innerHTML = "";
+            historyBody.innerHTML = "";
+            historyTable.style.display = "none";
+            return;
+        }
+
+        historySummary.textContent =
+            "Toplam: " + data.total + " randevu (" + data.cancelled + " iptal)";
+
+        const headers = (mode === "student")
+            ? ["Tarih", "Saat", "Öğretmen", "Branş", "Durum"]
+            : ["Tarih", "Saat", "Öğrenci", "Sınıf", "Durum"];
+        historyHead.innerHTML = headers.map(h => "<th>" + h + "</th>").join("");
+
+        historyBody.innerHTML = "";
+        data.rows.forEach(row => {
+            const tr = document.createElement("tr");
+            const cols = (mode === "student")
+                ? [formatDate(row.date), row.time, row.teacherName, row.branch]
+                : [formatDate(row.date), row.time, row.studentName, row.className];
+
+            cols.forEach(value => {
+                const td = document.createElement("td");
+                td.textContent = value;
+                tr.appendChild(td);
+            });
+
+            const statusTd = document.createElement("td");
+            const badge = document.createElement("span");
+            const cancelled = row.status === "CANCELLED";
+            badge.className = "badge " + (cancelled ? "badge-cancelled" : "badge-active");
+            badge.textContent = cancelled ? "İptal" : "Aktif";
+            statusTd.appendChild(badge);
+            tr.appendChild(statusTd);
+
+            historyBody.appendChild(tr);
+        });
+
+        historyTable.style.display = "";
+    }
+
+    function loadHistory(param, value) {
+        fetch("/appointments/history?" + param + "=" + encodeURIComponent(value))
+            .then(response => response.json())
+            .then(data => renderHistory(historyMode.value, data));
+    }
+
+    historyStudentSearch.addEventListener("input", () => {
+        const query = historyStudentSearch.value.trim();
+        historyStudentId.value = "";
+        historyStudentSuggestions.innerHTML = "";
+        clearHistory();
+        if (query.length === 0) {
+            return;
+        }
+
+        fetch("/students/search?name=" + encodeURIComponent(query))
+            .then(response => response.json())
+            .then(students => {
+                historyStudentSuggestions.innerHTML = "";
+                students.forEach(student => {
+                    const option = document.createElement("div");
+                    option.textContent = student.fullName + " — " + student.className;
+                    option.addEventListener("click", () => {
+                        historyStudentSearch.value = student.fullName;
+                        historyStudentId.value = student.id;
+                        historyStudentSuggestions.innerHTML = "";
+                        loadHistory("studentId", student.id);
+                    });
+                    historyStudentSuggestions.appendChild(option);
+                });
+            });
+    });
+
+    teacherPicker.addEventListener("change", () => {
+        clearHistory();
+        if (teacherPicker.value) {
+            loadHistory("teacherId", teacherPicker.value);
+        }
+    });
 });
 
 /**

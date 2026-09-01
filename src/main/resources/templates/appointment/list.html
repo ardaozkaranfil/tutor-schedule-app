@@ -70,33 +70,67 @@
     <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
 
     <div class="upcoming-section">
-        <h2>Yaklaşan Randevular</h2>
+        <div class="tab-bar">
+            <button type="button" class="tab-btn active" data-tab="upcoming">Yaklaşan randevular</button>
+            <button type="button" class="tab-btn" data-tab="history">Geçmiş randevular</button>
+        </div>
 
-        <table class="data-table upcoming-appointments">
-            <thead>
-            <tr>
-                <th>Tarih</th>
-                <th>Saat</th>
-                <th>Öğretmen</th>
-                <th>Öğrenci</th>
-                <th>İşlem</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="appointment : ${upcomingAppointments}">
-                <td th:text="${#temporals.format(appointment.date(), 'dd.MM.yyyy')}"></td>
-                <td th:text="${appointment.time()}"></td>
-                <td th:text="${appointment.teacherName()}"></td>
-                <td th:text="${appointment.studentName()}"></td>
-                <td class="action">
-                    <form th:action="@{/appointments/cancel/{id}(id=${appointment.id})}" method="post"
-                        onsubmit="return confirm('Bu randevuyu silmek istediğinize emin misiniz?');">
-                        <button type="submit" class="link-danger">Sil</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div id="upcomingTab" class="tab-panel">
+            <table class="data-table upcoming-appointments">
+                <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Öğretmen</th>
+                    <th>Öğrenci</th>
+                    <th>İşlem</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="appointment : ${upcomingAppointments}">
+                    <td th:text="${#temporals.format(appointment.date(), 'dd.MM.yyyy')}"></td>
+                    <td th:text="${appointment.time()}"></td>
+                    <td th:text="${appointment.teacherName()}"></td>
+                    <td th:text="${appointment.studentName()}"></td>
+                    <td class="action">
+                        <form th:action="@{/appointments/cancel/{id}(id=${appointment.id})}" method="post"
+                              onsubmit="return confirm('Bu randevuyu silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="link-danger">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="historyTab" class="tab-panel" style="display:none">
+            <div class="history-controls">
+                <select id="historyMode">
+                    <option value="student">Öğrenci</option>
+                    <option value="teacher">Öğretmen</option>
+                </select>
+
+                <div id="historyStudentPicker">
+                    <input type="text" id="historyStudentSearch" placeholder="Öğrenci ara..." autocomplete="off">
+                    <input type="hidden" id="historyStudentId">
+                    <div id="historyStudentSuggestions" class="student-suggestions"></div>
+                </div>
+
+                <select id="historyTeacherPicker" style="display:none">
+                    <option value="">Öğretmen seçiniz...</option>
+                    <option th:each="t : ${teachers}" th:value="${t.id}" th:text="${t.fullName}"></option>
+                </select>
+            </div>
+
+            <p id="historySummary" class="history-summary"></p>
+
+            <table class="data-table" id="historyTable" style="display:none">
+                <thead>
+                <tr id="historyHead"></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script th:src="@{/js/appointment.js}"></script>

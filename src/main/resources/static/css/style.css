@@ -420,3 +420,53 @@ section:has(.side-form) > .import-form .file-drop input[type="file"] {
 section:has(.side-form) > .import-form .btn {
     width: 100%;
 }
+
+.tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.tab-btn {
+    padding: 6px 14px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-btn.active {
+    background: #fff;
+    border-bottom-color: #fff;
+    font-weight: 600;
+}
+
+.history-controls {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+
+}
+
+.history-summary {
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.badge-active {
+    background: #e6f4ea;
+    color: #1e7e34;
+}
+
+.badge-cancelled {
+    background: #fdecea;
+    color: #c0392b;
+}
