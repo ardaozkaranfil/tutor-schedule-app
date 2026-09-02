@@ -75,27 +75,12 @@ class StudentControllerTest {
     @Test
     void submitAddForm_validInput_redirectsToStudentsList() throws Exception {
         mockMvc.perform(post("/students/add")
-                        .param("id", "1")
                         .param("fullName", "Arda")
                         .param("className", "12-MF"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/students"));
 
-        verify(studentService).createStudent(1L, "12-MF", "Arda");
-    }
-
-    @Test
-    void submitAddForm_duplicateId_setsFlashErrorAndRedirects() throws Exception {
-        when(studentService.createStudent(1L, "12-MF", "Arda"))
-                .thenThrow(new IllegalArgumentException("Bu numara zaten kayıtlı: 1"));
-
-        mockMvc.perform(post("/students/add")
-                        .param("id", "1")
-                        .param("fullName", "Arda")
-                        .param("className", "12-MF"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/students"))
-                .andExpect(flash().attribute("errorMessage", "Bu numara zaten kayıtlı: 1"));
+        verify(studentService).createStudent("12-MF", "Arda");
     }
 
     @Test

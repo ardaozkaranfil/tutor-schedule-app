@@ -17,7 +17,7 @@ class StudentRepositoryTest {
 
     @Test
     void findByFullNameContainingIgnoreCase_returnsMatch_whenCaseDiffers() {
-        studentRepository.save(new Student(1L, "5A", "Ahmet Yilmaz"));
+        studentRepository.save(new Student("5A", "Ahmet Yilmaz"));
 
         List<Student> result = studentRepository.findByFullNameContainingIgnoreCase("ahmet");
 
@@ -27,7 +27,7 @@ class StudentRepositoryTest {
 
     @Test
     void findByFullNameContainingIgnoreCase_returnsEmpty_whenNoMatch() {
-        studentRepository.save(new Student(1L, "5A", "Ahmet Yilmaz"));
+        studentRepository.save(new Student("5A", "Ahmet Yilmaz"));
 
         List<Student> result = studentRepository.findByFullNameContainingIgnoreCase("Mehmet");
 
@@ -36,9 +36,9 @@ class StudentRepositoryTest {
 
     @Test
     void findByFullNameContainingIgnoreCase_returnsPartialMatch_whenSubstring() {
-        studentRepository.save(new Student(1L, "5A", "Ahmet Yilmaz"));
-        studentRepository.save(new Student(2L, "5B", "Ahmet Kaya"));
-        studentRepository.save(new Student(3L, "5A", "Zeynep Demir"));
+        studentRepository.save(new Student("5A", "Ahmet Yilmaz"));
+        studentRepository.save(new Student("5B", "Ahmet Kaya"));
+        studentRepository.save(new Student("5A", "Zeynep Demir"));
 
         List<Student> result = studentRepository.findByFullNameContainingIgnoreCase("Ahmet");
 

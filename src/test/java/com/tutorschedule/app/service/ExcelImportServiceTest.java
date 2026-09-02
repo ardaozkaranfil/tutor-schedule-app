@@ -21,8 +21,6 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -75,7 +73,7 @@ public class ExcelImportServiceTest {
 
     @Test
     void mapRowToStudent_whenRowEntirelyEmpty_returnsNull(){
-        Row row = createRow("", "", "");
+        Row row = createRow("", "");
 
         Student result = excelImportService.mapRowToStudent(row);
 
@@ -83,24 +81,12 @@ public class ExcelImportServiceTest {
     }
 
     @Test
-    void mapRowToStudent_whenStudentNumberInvalid_throwsNumberFormatException(){
-        Row row = createRow("Arda", "abc", "12-MF");
-
-        NumberFormatException exception = assertThrows(
-                NumberFormatException.class,
-                () -> excelImportService.mapRowToStudent(row)
-        );
-
-        assertEquals("Geçersiz öğrenci numarası 'abc'", exception.getMessage());
-    }
-
-    @Test
     void mapRowToStudent_whenClassNotRegistered_createsClassGroupThenStudent(){
-        Row row = createRow("Arda", "1", "12-MF");
+        Row row = createRow("Arda", "12-MF");
         Student expected = mock(Student.class);
 
         when(classGroupRepository.existsById("12-MF")).thenReturn(false);
-        when(studentService.createStudent(1L, "12-MF", "Arda")).thenReturn(expected);
+        when(studentService.createStudent("12-MF", "Arda")).thenReturn(expected);
 
         Student result = excelImportService.mapRowToStudent(row);
 
@@ -110,10 +96,10 @@ public class ExcelImportServiceTest {
 
     @Test
     void mapRowToStudent_whenClassAlreadyRegistered_doesNotCreateClassGroup(){
-        Row row = createRow("Arda", "1", "12-MF");
+        Row row = createRow("Arda", "12-MF");
 
         when(classGroupRepository.existsById("12-MF")).thenReturn(true);
-        when(studentService.createStudent(1L, "12-MF", "Arda")).thenReturn(mock(Student.class));
+        when(studentService.createStudent("12-MF", "Arda")).thenReturn(mock(Student.class));
 
         excelImportService.mapRowToStudent(row);
 
@@ -123,12 +109,12 @@ public class ExcelImportServiceTest {
     @Test
     void importFromExcel_skipsHeaderAndImportsValidRows() throws IOException {
         when(classGroupRepository.existsById(any())).thenReturn(true);
-        when(studentService.createStudent(any(), any(), any())).thenReturn(mock(Student.class));
+        when(studentService.createStudent(any(), any())).thenReturn(mock(Student.class));
 
         MockMultipartFile file = buildExcelFile(
-                new String[]{"Name", "No", "Class"},
-                new String[]{"Arda", "1", "12-MF"},
-                new String[]{"Efe", "2", "12-MF"}
+                new String[]{"Name", "Class"},
+                new String[]{"Arda", "12-MF"},
+                new String[]{"Efe", "12-MF"}
         );
 
         String summary = excelImportService.importFromExcel(file);
@@ -137,30 +123,13 @@ public class ExcelImportServiceTest {
     }
 
     @Test
-    void importFromExcel_collectsErrorForBadRowButContinuesWithOthers() throws IOException {
-        when(classGroupRepository.existsById(any())).thenReturn(true);
-        when(studentService.createStudent(any(), any(), any())).thenReturn(mock(Student.class));
-
-        MockMultipartFile file = buildExcelFile(
-                new String[]{"Name", "No", "Class"},
-                new String[]{"Arda", "abc", "12-MF"},
-                new String[]{"Efe", "2", "12-MF"}
-        );
-
-        String summary = excelImportService.importFromExcel(file);
-
-        assertTrue(summary.startsWith("1 öğrenci içe aktarıldı, 1 satır başarısız"));
-        assertTrue(summary.contains("Satır 2"));
-    }
-
-    @Test
     void importFromExcel_performsBackupAfterImport() throws IOException {
         when(classGroupRepository.existsById(any())).thenReturn(true);
-        when(studentService.createStudent(any(), any(), any())).thenReturn(mock(Student.class));
+        when(studentService.createStudent(any(), any())).thenReturn(mock(Student.class));
 
         MockMultipartFile file = buildExcelFile(
-                new String[]{"Name", "No", "Class"},
-                new String[]{"Arda", "1", "12-MF"}
+                new String[]{"Name", "Class"},
+                new String[]{"Arda", "12-MF"}
         );
 
         excelImportService.importFromExcel(file);
@@ -178,13 +147,12 @@ public class ExcelImportServiceTest {
         return cell;
     }
 
-    private Row createRow(String name, String studentNo, String className){
+    private Row createRow(String name, String className){
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet();
         Row row = sheet.createRow(0);
         row.createCell(0).setCellValue(name);
-        row.createCell(1).setCellValue(studentNo);
-        row.createCell(2).setCellValue(className);
+        row.createCell(1).setCellValue(className);
         return row;
     }
 

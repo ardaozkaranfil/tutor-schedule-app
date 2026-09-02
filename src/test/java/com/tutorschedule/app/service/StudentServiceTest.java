@@ -28,40 +28,17 @@ public class StudentServiceTest {
     private StudentService studentService;
 
     @Test
-    void createStudent_whenConflictExists_throwsException(){
-        Student conflictingStudent = new Student();
-        conflictingStudent.setId(1L);
-        conflictingStudent.setFullName("Arda");
-        conflictingStudent.setClassName("12-MF");
-
-        when(studentRepository.existsById(1L))
-                .thenReturn(true);
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> studentService.createStudent(conflictingStudent.getId(), conflictingStudent.getClassName(), conflictingStudent.getFullName())
-        );
-
-        assertEquals("Bu numara zaten kayıtlı: 1", exception.getMessage());
-    }
-
-    @Test
-    void createStudent_whenNoConflict_savesSuccessfully(){
+    void createStudent_savesSuccessfully(){
         Student newStudent = new Student();
-        newStudent.setId(1L);
         newStudent.setFullName("Arda");
         newStudent.setClassName("12-MF");
 
-        when(studentRepository.existsById(1L))
-                .thenReturn(false);
-
         when(classGroupRepository.existsById("12-MF"))
                 .thenReturn(true);
-
-        when(studentRepository.save(newStudent))
+        when(studentRepository.save(any(Student.class)))
                 .thenReturn(newStudent);
 
-        Student result = studentService.createStudent(newStudent.getId(), newStudent.getClassName(), newStudent.getFullName());
+        Student result = studentService.createStudent("12-MF", "Arda");
 
         assertEquals(newStudent, result);
     }
