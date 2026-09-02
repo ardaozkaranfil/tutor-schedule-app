@@ -16,7 +16,7 @@
     <table class="data-table">
         <thead>
         <tr>
-            <th>Kurs No</th>
+            <th>No</th>
             <th>Ad Soyad</th>
             <th>Sınıf</th>
             <th>İşlemler</th>
@@ -41,9 +41,6 @@
     <aside class="side-form">
         <h2 id="formTitle">Öğrenci Ekle</h2>
         <form id="studentForm" th:action="@{/students/add}" method="post">
-            <label>Kurs No
-                <input type="number" name="id" id="studentId" required>
-            </label>
             <label>Ad Soyad
                 <input type="text" name="fullName" id="studentFullName" required>
             </label>

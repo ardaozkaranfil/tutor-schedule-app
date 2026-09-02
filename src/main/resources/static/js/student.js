@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function (){
     const tableBody = document.getElementById('studentTableBody');
     const form = document.getElementById('studentForm');
     const formTitle = document.getElementById('formTitle');
-    const idInput = document.getElementById('studentId');
     const fullNameInput = document.getElementById('studentFullName');
     const classNameInput = document.getElementById('studentClassName');
     const cancelBtn = document.getElementById('cancelEditBtn');
@@ -76,8 +75,6 @@ document.addEventListener('DOMContentLoaded', function (){
         fetch('/students/' + id)
             .then(r => r.json())
             .then(student => {
-                idInput.value = student.id;
-                idInput.readOnly = true;
                 fullNameInput.value = student.fullName;
                 classNameInput.value = student.className;
 
@@ -94,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function (){
      */
     function exitEditMode() {
         form.reset();
-        idInput.readOnly = false;
         form.action = '/students/add';
         formTitle.textContent = 'Öğrenci Ekle';
         cancelBtn.style.display = 'none';
