@@ -140,12 +140,12 @@ public class BackupService {
 
             String truncateScript = """
                 SET FOREIGN_KEY_CHECKS=0;
-                TRUNCATE TABLE APPOINTMENT;
-                TRUNCATE TABLE TEACHER_SCHEDULE;
-                TRUNCATE TABLE TIME_SLOT;
-                TRUNCATE TABLE CLASS_GROUP;
-                TRUNCATE TABLE STUDENT;
-                TRUNCATE TABLE TEACHER;
+                TRUNCATE TABLE appointment;
+                TRUNCATE TABLE teacher_schedule;
+                TRUNCATE TABLE time_slot;
+                TRUNCATE TABLE class_group;
+                TRUNCATE TABLE student;
+                TRUNCATE TABLE teacher;
                 SET FOREIGN_KEY_CHECKS=1;
                 """;
 
