@@ -166,4 +166,32 @@ public class AppointmentServiceTest {
         assertEquals(AppointmentStatus.CANCELLED, appointment.getStatus());
         verify(appointmentRepository).save(appointment);
     }
+
+    @Test
+    void getStudentHistory_delegatesToRepositoryNewestFirstQuery(){
+        Appointment a1 = new Appointment(1L, 10L, 5L, LocalDate.of(2026, 9, 1), AppointmentStatus.ACTIVE);
+        Appointment a2 = new Appointment(2L, 11L, 5L, LocalDate.of(2026, 8, 1), AppointmentStatus.CANCELLED);
+
+        when(appointmentRepository.findByStudentIdOrderByAppointmentDateDesc(5L))
+                .thenReturn(List.of(a1, a2));
+
+        List<Appointment> result = appointmentService.getStudentHistory(5L);
+
+        assertEquals(List.of(a1, a2), result);
+        verify(appointmentRepository).findByStudentIdOrderByAppointmentDateDesc(5L);
+    }
+
+    @Test
+    void getTeacherHistory_delegatesToRepositoryNewestFirstQuery(){
+        Appointment a1 = new Appointment(7L, 10L, 5L, LocalDate.of(2026, 9, 1), AppointmentStatus.ACTIVE);
+        Appointment a2 = new Appointment(7L, 11L, 6L, LocalDate.of(2026, 8, 1), AppointmentStatus.CANCELLED);
+
+        when(appointmentRepository.findByTeacherIdOrderByAppointmentDateDesc(7L))
+                .thenReturn(List.of(a1, a2));
+
+        List<Appointment> result = appointmentService.getTeacherHistory(7L);
+
+        assertEquals(List.of(a1, a2), result);
+        verify(appointmentRepository).findByTeacherIdOrderByAppointmentDateDesc(7L);
+    }
 }

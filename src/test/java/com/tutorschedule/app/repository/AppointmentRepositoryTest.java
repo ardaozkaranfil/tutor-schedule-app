@@ -87,4 +87,36 @@ class AppointmentRepositoryTest {
                 .extracting(Appointment::getStudentId)
                 .containsExactlyInAnyOrder(11L, 12L);
     }
+
+    @Test
+    void findByStudentIdOrderByAppointmentDateDesc_returnsOnlyThatStudentNewestFirstIncludingCancelled() {
+        LocalDate base = LocalDate.of(2026, 9, 1);
+        appointmentRepository.save(new Appointment(1L, 1L, 10L, base, ACTIVE));
+        appointmentRepository.save(new Appointment(2L, 2L, 10L, base.plusDays(10), CANCELLED));
+        appointmentRepository.save(new Appointment(3L, 3L, 10L, base.plusDays(5), ACTIVE));
+        appointmentRepository.save(new Appointment(1L, 1L, 99L, base.plusDays(3), ACTIVE));
+
+        List<Appointment> result = appointmentRepository.findByStudentIdOrderByAppointmentDateDesc(10L);
+
+        assertThat(result).hasSize(3)
+                .extracting(Appointment::getAppointmentDate)
+                .containsExactly(base.plusDays(10), base.plusDays(5), base);
+        assertThat(result).extracting(Appointment::getStatus).contains(CANCELLED);
+    }
+
+    @Test
+    void findByTeacherIdOrderByAppointmentDateDesc_returnsOnlyThatTeacherNewestFirstIncludingCancelled() {
+        LocalDate base = LocalDate.of(2026, 9, 1);
+        appointmentRepository.save(new Appointment(7L, 1L, 10L, base, ACTIVE));
+        appointmentRepository.save(new Appointment(7L, 2L, 11L, base.plusDays(8), CANCELLED));
+        appointmentRepository.save(new Appointment(7L, 3L, 12L, base.plusDays(2), ACTIVE));
+        appointmentRepository.save(new Appointment(8L, 1L, 13L, base.plusDays(4), ACTIVE));
+
+        List<Appointment> result = appointmentRepository.findByTeacherIdOrderByAppointmentDateDesc(7L);
+
+        assertThat(result).hasSize(3)
+                .extracting(Appointment::getAppointmentDate)
+                .containsExactly(base.plusDays(8), base.plusDays(2), base);
+        assertThat(result).extracting(Appointment::getStatus).contains(CANCELLED);
+    }
 }
