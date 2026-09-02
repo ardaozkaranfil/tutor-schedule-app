@@ -19,7 +19,11 @@
         </select>
     </div>
 
-    <div class="weekly-schedule">
+    <p th:if="${selectedTeacher == null}" class="error">
+        Önce Öğretmenler sayfasından bir öğretmen ekleyin.
+    </p>
+
+    <div class="weekly-schedule" th:if="${selectedTeacher != null}">
         <h2>Hafta İçi Programı</h2>
         <table class="data-table schedule-grid">
             <thead>
@@ -63,7 +67,7 @@
         </table>
     </div>
 
-    <div class="weekly-schedule">
+    <div class="weekly-schedule" th:if="${selectedTeacher != null}">
         <h2>Hafta Sonu Programı</h2>
         <table class="data-table schedule-grid">
             <thead>
