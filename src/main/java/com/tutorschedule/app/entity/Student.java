@@ -2,17 +2,15 @@ package com.tutorschedule.app.entity;
 
 import jakarta.persistence.*;
 
-import java.util.Objects;
-
 /**
- * Represents a student. id isn't auto-generated — the school number is
- * used directly as the id (see ExcelImportService, where the number
- * column from the spreadsheet maps straight into this field).
+ * Represents a student. id is a database-generated surrogate key;
+ * students are identified by name and class, not by a school number.
  */
 @Entity
 @Table(name = "STUDENT")
 public class Student {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -30,6 +28,14 @@ public class Student {
      */
     public Student(Long id, String className, String fullName){
         this.setId(id);
+        this.setClassName(className);
+        this.setFullName(fullName);
+    }
+
+    /**
+     * Builds a student without an id; the database assigns it on save.
+     */
+    public Student(String className, String fullName){
         this.setClassName(className);
         this.setFullName(fullName);
     }

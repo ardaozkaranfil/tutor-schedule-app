@@ -17,10 +17,9 @@ import java.util.List;
  * student manually or via bulk Excel import, editing a student's name/class,
  * and deleting a student. All mutating operations are delegated to
  * {@link StudentService} (and {@link ExcelImportService} for bulk import) so
- * the documented business rules (school number doubling as a non-generated
- * id, backup on import) are always applied — this controller never touches
- * the repositories directly except {@link ClassGroupRepository} for feeding
- * the class dropdown.
+ * the documented business rules (database-generated id, backup on import) are
+ * always applied — this controller never touches the repositories directly
+ * except {@link ClassGroupRepository} for feeding the class dropdown.
  */
 @Controller
 @RequestMapping("/students")
@@ -60,27 +59,16 @@ public class StudentController {
     }
 
     /**
-     * Creates a new student. Since id doubles as the school number and isn't
-     * auto-generated, an already-registered number is caught here and reported
-     * back to the add form as a flash error instead of surfacing a raw
-     * exception. Does not trigger a backup — single manual entries aren't a
-     * backup trigger per the documented rules.
+     * Creates a new student. The id is assigned by the database. Does not
+     * trigger a backup — single manual entries aren't a backup trigger per
+     * the documented rules.
      */
     @PostMapping("/add")
     public String submitAddForm(
-            @RequestParam Long id,
             @RequestParam String fullName,
-            @RequestParam String className,
-            RedirectAttributes redirectAttributes){
+            @RequestParam String className){
 
-        try{
-            studentService.createStudent(id, className, fullName);
-        }
-        catch (IllegalArgumentException e){
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/students";
-        }
-
+        studentService.createStudent(className, fullName);
         return "redirect:/students";
     }
 
@@ -114,7 +102,7 @@ public class StudentController {
 
     /**
      * Updates a student's class and full name. The school number (id) itself
-     * isn't editable here since it's the natural key.
+     * isn't editable here since it's the generated key.
      */
     @PostMapping("/edit/{id}")
     public String editStudent(

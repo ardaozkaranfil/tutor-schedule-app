@@ -65,17 +65,11 @@ public class StudentService {
     }
 
     /**
-     * Saves a new student. Since id doubles as the school number and isn't
-     * auto-generated, an already-registered number throws
-     * IllegalArgumentException.
+     * Saves a new student. The id is assigned by the database.
      */
     @Transactional
-    public Student createStudent(Long id, String className, String fullName){
-        if (studentRepository.existsById(id)) {
-            throw new IllegalArgumentException("Bu numara zaten kayıtlı: " + id);
-        }
+    public Student createStudent(String className, String fullName){
         Student student = new Student();
-        student.setId(id);
         student.setClassName(className);
         student.setFullName(fullName);
 

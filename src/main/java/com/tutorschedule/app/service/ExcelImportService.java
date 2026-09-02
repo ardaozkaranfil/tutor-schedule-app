@@ -82,27 +82,18 @@ public class ExcelImportService {
     }
 
     /**
-     * Converts a single Excel row into a Student entity. The three columns
-     * are read as name, school number, and class, in that order. Returns
-     * null if the row is entirely empty (meaning it should be skipped).
-     * Throws NumberFormatException if the school number isn't a valid number.
-     * If the row's class name isn't already registered, a ClassGroup is
-     * created for it here on the spot.
+     * Converts a single Excel row into a Student entity. The two columns
+     * are read as name and class, in that order. Returns null if the row
+     * is entirely empty (meaning it should be skipped). If the row's class
+     * name isn't already registered, a ClassGroup is created for it here
+     * on the spot.
      */
     public Student mapRowToStudent(Row row){
         String name = getCellValueAsString(row.getCell(0));
-        String studentNo = getCellValueAsString(row.getCell(1));
-        String studentClass = getCellValueAsString(row.getCell(2));
+        String studentClass = getCellValueAsString(row.getCell(1));
 
-        if (name.isBlank() && studentNo.isBlank() && studentClass.isBlank()) {
+        if (name.isBlank() && studentClass.isBlank()) {
             return null;
-        }
-
-        Long id;
-        try {
-            id = Long.parseLong(studentNo);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Geçersiz öğrenci numarası '" + studentNo + "'");
         }
 
         if (!classGroupRepository.existsById(studentClass)) {
@@ -110,7 +101,7 @@ public class ExcelImportService {
             classGroupRepository.save(classGroup);
         }
 
-        return studentService.createStudent(id, studentClass, name);
+        return studentService.createStudent(studentClass, name);
     }
 
     /**
