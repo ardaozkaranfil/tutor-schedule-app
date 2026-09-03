@@ -1,6 +1,6 @@
 # Tutor Schedule App
 
-[![CI](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml/badge.svg)](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml)
+[![CI](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml/badge.svg)](https://github.com/ardaozkaranfil/tutor-schedule-app/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/ardaozkaranfil/tutor-schedule-app)](https://github.com/ardaozkaranfil/tutor-schedule-app/releases)
 
 A scheduling and appointment system built for a tutoring center. It replaces a paper weekly schedule with a local web app used by the guidance counselor to manage teacher availability and book one-on-one student sessions.
 
@@ -42,9 +42,10 @@ Early UI planning is in [`docs/ui-mockup.pdf`](docs/ui-mockup.pdf) — a design-
 - Guidance counselor manages the teacher list, including subject/branch info.
 - Teacher weekly availability is entered manually and stored — which slots are busy (with which class), free, or blocked (teacher off that day/hour).
 - Weekday and weekend hours can differ.
-- Student records are imported from an Excel file (name, course number, class), and classes are created automatically from that data.
+- Student records are imported from an Excel file (name, class), and classes are created automatically from that data.
 - One-on-one appointments are booked against a real calendar date, checked against the teacher's weekly grid, with conflict prevention — no double-booking the same slot.
 - Appointments can be cancelled.
+- A student's or a teacher's full one-on-one booking history (upcoming and past, cancelled rows included) can be looked up from the "Geçmiş randevular" tab, with a total / cancelled-count summary.
 - Weekly and daily teacher schedules can be exported to Excel in a printable layout. The weekly export also overlays that calendar week's one-on-one appointments onto the grid (student name in the booked slot) and appends a summary table of the week's appointments (date, day, time, student, class).
 - Teachers and students can be added in bulk.
 - Database backups are taken automatically (on app startup and whenever a schedule is saved) and can be restored from a saved dump.
@@ -174,7 +175,7 @@ Test coverage is measured with JaCoCo. Running `./mvnw test` also generates an H
 
 ### API testing with Postman
 
-A Postman collection covering the app's JSON/file-download endpoints (student/teacher search, single-student lookup, Excel schedule export) is at `postman/tutor-schedule-app.postman_collection.json`.
+A Postman collection covering the app's JSON/file-download endpoints (student/teacher search, single-student lookup, appointment history, Excel schedule export) is at `postman/tutor-schedule-app.postman_collection.json`.
 
 To use it:
 
@@ -195,9 +196,13 @@ These are deliberate scope decisions rather than things left half-done, but they
 - **`BackupControllerTest` writes to the real `backups/` folder** to test file listing, cleaning up after itself in a `finally` block. It works, but it means the test suite touches the working directory rather than a temp directory.
 - **Single-instance by design.** Each tutoring center runs its own independent local installation with its own database. There is no sync or shared server between them, and the app was never built to serve multiple centers from one deployment.
 
+## Changelog
+
+Release-by-release changes are in [`CHANGELOG.md`](CHANGELOG.md); tagged releases with notes are on the [Releases page](https://github.com/ardaozkaranfil/tutor-schedule-app/releases).
+
 ## Notes
 
 - `application.properties` is committed, but it only holds env-var references (`${DB_PASSWORD}` and friends) — real values come from `.env` for the Docker run, or from your shell environment for a local run. `.env` itself stays gitignored.
-- No user data (student names, course numbers) is committed to this repo. The app is tested with placeholder data.
+- No user data (student names) is committed to this repo. The app is tested with placeholder data.
 - CI runs on GitHub Actions against Java 21; see the badge above or the Actions tab for build status.
 - Backups are timestamped in the app's container timezone (Europe/Istanbul), so file names reflect local time regardless of the host machine.
