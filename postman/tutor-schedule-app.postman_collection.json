@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "859b4a6a-b92b-4032-bf8b-75baf1134c43",
+    "_postman_id": "01483429-8080-4090-947e-58e8776447ac",
     "name": "Tutor Schedule App",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "57350514"
@@ -41,94 +41,15 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "json",
           "header": [
             {
               "key": "Content-Type",
               "value": "application/json"
-            },
-            {
-              "key": "Transfer-Encoding",
-              "value": "chunked"
-            },
-            {
-              "key": "Date",
-              "value": "Wed, 12 Aug 2026 20:25:39 GMT"
-            },
-            {
-              "key": "Keep-Alive",
-              "value": "timeout=60"
-            },
-            {
-              "key": "Connection",
-              "value": "keep-alive"
             }
           ],
           "cookie": [],
           "body": "[\n    {\n        \"id\": 22,\n        \"className\": \"12-MF\",\n        \"fullName\": \"Tuna Ozkaranfil\"\n    }\n]"
-        }
-      ]
-    },
-    {
-      "name": "Get Student by Id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/students/22",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "students",
-            "22"
-          ]
-        }
-      },
-      "response": [
-        {
-          "name": "Get Student by Id",
-          "originalRequest": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/students/22",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "22"
-              ]
-            }
-          },
-          "status": "OK",
-          "code": 200,
-          "_postman_previewlanguage": null,
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "key": "Transfer-Encoding",
-              "value": "chunked"
-            },
-            {
-              "key": "Date",
-              "value": "Wed, 12 Aug 2026 20:18:14 GMT"
-            },
-            {
-              "key": "Keep-Alive",
-              "value": "timeout=60"
-            },
-            {
-              "key": "Connection",
-              "value": "keep-alive"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n    \"id\": 22,\n    \"className\": \"12-MF\",\n    \"fullName\": \"Tuna Ozkaranfil\"\n}"
         }
       ]
     },
@@ -167,27 +88,11 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "json",
           "header": [
             {
               "key": "Content-Type",
               "value": "application/json"
-            },
-            {
-              "key": "Transfer-Encoding",
-              "value": "chunked"
-            },
-            {
-              "key": "Date",
-              "value": "Wed, 12 Aug 2026 20:22:24 GMT"
-            },
-            {
-              "key": "Keep-Alive",
-              "value": "timeout=60"
-            },
-            {
-              "key": "Connection",
-              "value": "keep-alive"
             }
           ],
           "cookie": [],
@@ -232,7 +137,7 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "Text",
           "header": [
             {
               "key": "Content-Disposition",
@@ -241,26 +146,191 @@
             {
               "key": "Content-Type",
               "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        }
+      ]
+    },
+    {
+      "name": "Appointment History (by student)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/history?studentId=22",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "appointments",
+            "history"
+          ],
+          "query": [
+            {
+              "key": "studentId",
+              "value": "22"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Appointment History (by student)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/history?studentId=22",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "studentId",
+                  "value": "22"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"total\": 2,\n  \"cancelled\": 1,\n  \"rows\": [\n    {\n      \"date\": \"2026-09-02\",\n      \"time\": \"14:40 - 15:20\",\n      \"teacherName\": \"Arda Ozkaranfil\",\n      \"branch\": \"Coğrafya\",\n      \"studentName\": \"Tuna Ozkaranfil\",\n      \"className\": \"12-MF\",\n      \"status\": \"ACTIVE\"\n    },\n    {\n      \"date\": \"2026-08-30\",\n      \"time\": \"10:00 - 10:40\",\n      \"teacherName\": \"Arda Ozkaranfil\",\n      \"branch\": \"Coğrafya\",\n      \"studentName\": \"Tuna Ozkaranfil\",\n      \"className\": \"12-MF\",\n      \"status\": \"CANCELLED\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Appointment History (by teacher)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/history?teacherId=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "appointments",
+            "history"
+          ],
+          "query": [
+            {
+              "key": "teacherId",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Appointment History (by teacher)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/history?teacherId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "teacherId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"total\": 1,\n  \"cancelled\": 0,\n  \"rows\": [\n    {\n      \"date\": \"2026-09-02\",\n      \"time\": \"14:40 - 15:20\",\n      \"teacherName\": \"Arda Ozkaranfil\",\n      \"branch\": \"Coğrafya\",\n      \"studentName\": \"Tuna Ozkaranfil\",\n      \"className\": \"12-MF\",\n      \"status\": \"ACTIVE\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Student by Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/students/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "1"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Get Student by Id",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "1"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "content-type",
+              "value": "application/json"
             },
             {
-              "key": "Content-Length",
-              "value": "3626"
+              "key": "transfer-encoding",
+              "value": "chunked"
             },
             {
-              "key": "Date",
-              "value": "Wed, 12 Aug 2026 20:21:14 GMT"
+              "key": "date",
+              "value": "Thu, 03 Sep 2026 15:30:07 GMT"
             },
             {
-              "key": "Keep-Alive",
+              "key": "keep-alive",
               "value": "timeout=60"
             },
             {
-              "key": "Connection",
+              "key": "connection",
               "value": "keep-alive"
             }
           ],
           "cookie": [],
-          "body": null
+          "body": "{\n  \"id\": 1,\n  \"className\": \"12-A MF\",\n  \"fullName\": \"Arda\"\n}"
         }
       ]
     }
@@ -270,8 +340,6 @@
       "listen": "prerequest",
       "script": {
         "type": "text/javascript",
-        "packages": {},
-        "requests": {},
         "exec": [
           ""
         ]
@@ -281,8 +349,6 @@
       "listen": "test",
       "script": {
         "type": "text/javascript",
-        "packages": {},
-        "requests": {},
         "exec": [
           ""
         ]
