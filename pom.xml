@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.tutorschedule.app</groupId>
 	<artifactId>tutor-schedule-app</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<name>Tutor Schedule App</name>
 	<description>Scheduling and appointment system for a tutoring center: teacher availability, one-on-one bookings, Excel import/export.</description>
 	<url>https://github.com/ardaozkaranfil/tutor-schedule-app</url>
